@@ -43,6 +43,9 @@ class WordsList:
         :return: list of words we can create from add letters
         """
         words_match_to_letters = list()
+        if '?' in letters:
+            letters.remove('?')
+
         for word in self.__words:
             if self.__check_letters_in_word(letters, word):
                 words_match_to_letters.append(word)
