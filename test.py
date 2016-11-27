@@ -1,8 +1,4 @@
-print('test')
-print('test1')
-a = {}
 
-a = 3.5
+b = {(1,'A'):None,(1,'B'):None}
 
-
-print ('ala')
+print(b[(1,"C")])
