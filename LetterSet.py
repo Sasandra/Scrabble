@@ -1,9 +1,11 @@
+""" Module responsible for actions with tiles with letters. """
 import collections
 
-named_letter = collections.namedtuple('named_letter', 'amount points')
+NamedLetter = collections.namedtuple('named_letter', 'amount points')
 
 
 class LetterSet:
+    """ Class responsbile for storage and operations connected to letters tiles. """
     def __init__(self):
         self.__letters = dict()
         try:
@@ -13,7 +15,7 @@ class LetterSet:
                 data = data.split('@')
                 for line in data:
                     line = line.rstrip().split(':')
-                    self.__letters.update({line[0]: named_letter(int(line[1]), int(line[2]))})
+                    self.__letters.update({line[0]: NamedLetter(int(line[1]), int(line[2]))})
 
         except IOError:
             print('Plik z literami nie został znaleziony.')
@@ -27,29 +29,30 @@ class LetterSet:
             result = result + word + self.__letters[word]
         return hash(result)
 
-    def __getitem__(self, lt):
-        if letter in self.__letters:
-            return self.__letters[lt]
+    def __getitem__(self, char):
+        if char in self.__letters:
+            return self.__letters[char]
 
-    def __setitem__(self, lt, value):
-        self.__letters[lt] = value
+    def __setitem__(self, char, value):
+        self.__letters[char] = value
 
-    def get_amount(self, lt):
-        return int(self.__letters[lt].amount)
+    def get_amount(self, char):
+        """
+        :param char: Letter which amount we want to get.
+        :return: Amount of given letter.
+        """
+        return int(self.__letters[char].amount)
 
-    def get_points(self, lt):
-        return int(self.__letters[lt].points)
+    def get_points(self, char):
+        """
+        :param char: Letter which amount we want to get.
+        :return: Points of given letter.
+        """
+        return int(self.__letters[char].points)
 
-    def dekrement_amount(self, lt):
-        if self.get_amount(lt) > 0:
-            self.__letters[lt] = named_letter(self.get_amount(lt)-1, self.get_points(lt))
-
-
-
-a = LetterSet()
-letter = 'a'
-print(a.get_amount('a'))
-a.dekrement_amount('a')
-a.dekrement_amount('a')
-a.dekrement_amount('a')
-print(a.get_amount('a'))
+    def dekrement_amount(self, char):
+        """
+        :param char: Letter which amount we want to decrease.
+        """
+        if self.get_amount(char) > 0:
+            self.__letters[char] = NamedLetter(self.get_amount(char)-1, self.get_points(char))
