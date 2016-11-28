@@ -1,5 +1,6 @@
 """ Module responsible for actions with tiles with letters. """
 import collections
+import random
 
 NamedLetter = collections.namedtuple('named_letter', 'amount points')
 
@@ -8,6 +9,7 @@ class LetterSet:
     """ Class responsbile for storage and operations connected to letters tiles. """
     def __init__(self):
         self.__letters = dict()
+        self._number_of_letters = 100
         try:
             with open('letters.txt', 'r') as reader:
                 data = reader.read()
@@ -56,3 +58,20 @@ class LetterSet:
         """
         if self.get_amount(char) > 0:
             self.__letters[char] = NamedLetter(self.get_amount(char)-1, self.get_points(char))
+            self._number_of_letters -= 1
+
+    def random_letters(self, amount):
+        """
+        :param amount: ammount of letter to random (max 7)
+        :return: list of letter which we need to complete player set
+        """
+        letters_to_return = list()
+        while len(letters_to_return) < amount:
+            letter = random.choice(list(self.__letters.keys()))
+            if self.get_amount(letter) > 0:
+                self.dekrement_amount(letter)
+                letters_to_return.append(letter)
+            if self._number_of_letters == 0:
+                break
+
+        return letters_to_return
