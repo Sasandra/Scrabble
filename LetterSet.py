@@ -9,7 +9,7 @@ class LetterSet:
     """ Class responsbile for storage and operations connected to letters tiles. """
     def __init__(self):
         self.__letters = dict()
-        self._number_of_letters = 100
+        self.__number_of_letters = 100
         try:
             with open('letters.txt', 'r') as reader:
                 data = reader.read()
@@ -58,7 +58,7 @@ class LetterSet:
         """
         if self.get_amount(char) > 0:
             self.__letters[char] = NamedLetter(self.get_amount(char)-1, self.get_points(char))
-            self._number_of_letters -= 1
+            self.__number_of_letters -= 1
 
     def random_letters(self, amount):
         """
@@ -71,7 +71,28 @@ class LetterSet:
             if self.get_amount(letter) > 0:
                 self.dekrement_amount(letter)
                 letters_to_return.append(letter)
-            if self._number_of_letters == 0:
+            if self.__number_of_letters == 0:
                 break
 
         return letters_to_return
+
+    def increment_amount(self, char):
+        """
+        :param char: Letter which amount we want to increase.
+        """
+        if self.__number_of_letters < 101:
+            self.__letters[char] = NamedLetter(self.get_amount(char)+1, self.get_points(char))
+            self.__number_of_letters += 1
+
+
+    def change_letters(self, letters):
+        """
+        :param letters: list of letter we want to exchange
+        :return: list of letters random from all avalible letters
+        """
+        letter_to_return = self.random_letters(len(letters))
+        for i in letters:
+            self.increment_amount(i)
+            print(i)
+
+        return letter_to_return
