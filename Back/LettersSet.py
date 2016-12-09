@@ -5,13 +5,13 @@ import random
 NamedLetter = collections.namedtuple('named_letter', 'amount points')
 
 
-class LetterSet:
+class Letters:
     """ Class responsbile for storage and operations connected to letters tiles. """
     def __init__(self):
         self.__letters = dict()
         self.__number_of_letters = 100
         try:
-            with open('letters.txt', 'r') as reader:
+            with open('Back/letters.txt', 'r') as reader:
                 data = reader.read()
                 data = data.replace('\n', "@")
                 data = data.split('@')

@@ -1,12 +1,12 @@
 """ Module with class to represent list of all allowed words in the game"""
 
 
-class WordsList:
+class Words:
     """ Class which represent list of all allowed words in the game """
     def __init__(self):
         self.__words = list()
         try:
-            with open('words.txt', mode='r', encoding='utf-8') as reader:
+            with open('Back/words.txt', mode='r', encoding='utf-8') as reader:
                 for line in reader:
                     line = line.rstrip()
                     self.__words.append(line)

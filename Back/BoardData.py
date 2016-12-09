@@ -4,7 +4,7 @@ import collections
 Premium = collections.namedtuple('premium', 'kind factor')
 
 
-class BoardData:
+class Board:
     """
     Class which represent board
     """
@@ -22,7 +22,7 @@ class BoardData:
         :return: read data about premiums from file
         """
         try:
-            with open('premia.txt', 'r', encoding='utf-8') as reader:
+            with open('Back/premia.txt', 'r', encoding='utf-8') as reader:
                 for i in reader:
                     i = i.rstrip().replace('(', '').replace(')', '')
                     pairs = i.split(':')
