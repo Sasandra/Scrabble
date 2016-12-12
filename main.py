@@ -1,9 +1,12 @@
 """Main module of game"""
 
-import pygame
 import sys
-import HelloMenu
+
+import pygame
 from pygame.locals import *
+from Back import PlayerData
+from Front import HelloMenu
+from Front import MainMenu
 
 pygame.init()
 pygame.display.set_caption('Scr@bble')
@@ -24,9 +27,12 @@ def input(events):
 
 
 input(pygame.event.get())
-app = HelloMenu.HelloMenu()
 
 if czy:
-    app.start()
+    name = HelloMenu.HelloMenu().start()
+    if name != None:
+        player = PlayerData.Player(name)
+        print(player.name)
+        MainMenu.MainMenu().start()
 else:
     pygame.quit()

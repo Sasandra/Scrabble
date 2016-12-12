@@ -29,6 +29,8 @@ class TextBox:
             if char:  # stop emtpy space for shift key adding to list
                 self.str_list.append(char)
 
+        return ''.join(self.str_list)
+
     def update(self, scr):
         """show entered word on screen"""
         temp_word = ''.join(self.str_list)
