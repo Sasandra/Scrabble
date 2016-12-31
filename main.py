@@ -7,6 +7,7 @@ from pygame.locals import *
 from Back import PlayerData
 from Front import HelloMenu
 from Front import MainMenu
+from Front import  ComputerMode
 
 pygame.init()
 pygame.display.set_caption('Scr@bble')
@@ -30,9 +31,13 @@ input(pygame.event.get())
 
 if czy:
     name = HelloMenu.HelloMenu().start()
-    if name != None:
+    if name:
         player = PlayerData.Player(name)
         print(player.name)
-        MainMenu.MainMenu().start()
+        mode = MainMenu.MainMenu().start()
+        if mode == 'computer':
+            ComputerMode.ComputerMode(player).start()
+        else:
+            print('nope')
 else:
     pygame.quit()

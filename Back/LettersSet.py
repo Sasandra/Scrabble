@@ -93,6 +93,5 @@ class Letters:
         letter_to_return = self.random_letters(len(letters))
         for i in letters:
             self.increment_amount(i)
-            print(i)
 
         return letter_to_return

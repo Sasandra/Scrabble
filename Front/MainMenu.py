@@ -98,10 +98,12 @@ class MainMenu:
                         if self.network_button.collidepoint(pygame.mouse.get_pos()):
                             self.screen.blit(self.button_on_click('network'), (189, 295))
                             pygame.display.flip()
+                            return 'network'
 
                         if self.computer_button.collidepoint(pygame.mouse.get_pos()):
                             self.screen.blit(self.button_on_click('computer'), (189, 200))
                             pygame.display.flip()
+                            return 'computer'
 
                 if event.type == pygame.MOUSEBUTTONUP:
                     if event.button == 1:
