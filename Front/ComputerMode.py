@@ -48,10 +48,8 @@ class ComputerMode:
         :return: display widgets on screen
         """
         background = pygame.image.load('Images\\game_background.png')
-        holder = pygame.image.load('Images\\holder.png')
         self.screen = pygame.display.get_surface()
         self.screen.blit(background, (0, 0))
-        self.screen.blit(holder, (869, 109))
 
         self.show_text(self.computer_player.name, 30, (20, 50))
         self.show_text('Wynik:', 30, (20, 80))

@@ -41,7 +41,8 @@ class Holder:
             'ó': "o1",
             'ś': "s1",
             'ź': "z1",
-            'ż': "z2"
+            'ż': "z2",
+            '?': "blank"
         }
         print(switcher.get(letter, letter))
         return switcher.get(letter, letter)
@@ -50,6 +51,8 @@ class Holder:
         """
         :return: read for each holder's letter image and show it on a screen
         """
+        holder = pygame.image.load('Images\\holder.png')
+        self.screen.blit(holder, (869, 109))
         self.read_holder()
         for i in self.holder:
             left = self.holder[i][0].left
@@ -59,6 +62,11 @@ class Holder:
             letter = pygame.image.load(address)
             letter = pygame.transform.scale(letter, (55, 55))
             self.screen.blit(letter, (left, top))
+
+    def active_letters(self, index):
+        """ display rectangle around chosen letter"""
+        pygame.draw.rect(self.screen, (255, 0, 0), self.holder[index][0], 2)
+        pygame.display.flip()
 
     def exchange_holder(self):
         """
@@ -78,6 +86,7 @@ class Holder:
                         for i in self.holder:
                             if self.holder[i][0].collidepoint(pygame.mouse.get_pos()):
                                 letter_to_change.append(self.holder[i][1])
+                                self.active_letters(i)
                             if self.end_exchange.collidepoint(pygame.mouse.get_pos()):
                                 self.window_state = False
                                 exchange_button = pygame.image.load('Images\\wymiana_hide.png')
