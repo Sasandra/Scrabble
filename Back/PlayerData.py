@@ -11,6 +11,10 @@ class Player:
         self.score = 0
 
     def exchange_letter(self, letters):
+        """
+        :param letters: list of letters to exchange
+        :return: holder with updated list of letters
+        """
         exchanged = self.letters_object.change_letters(letters)
         for i in letters:
             self.holder.remove(i)

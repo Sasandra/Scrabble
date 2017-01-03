@@ -1,9 +1,11 @@
-import pygame
+""" Player's holder for letters"""
+# -*- coding: utf-8 -*-
 import collections
+import pygame
 
 
 class Holder:
-
+    """ Class to represent player's holder for letters"""
     def __init__(self, player, screen):
         self.player = player
         self.holder = collections.OrderedDict()
@@ -13,6 +15,9 @@ class Holder:
         self.end_exchange = pygame.Rect(1020, 260, 120, 40)
 
     def read_holder(self):
+        """
+        :return: Generate holder's cooardinates on board
+        """
         self.holder = collections.OrderedDict()
         letters = self.player.holder
         coor = 880
@@ -20,23 +25,45 @@ class Holder:
             self.holder.update({i: (pygame.Rect(coor, 120, 55, 55), letters[i])})
             coor += 57
 
+    @staticmethod
+    def change_name(letter):
+        """
+        :param letter: letter which will be change in correct form for filename
+        :return: letter if letter isn't polish letter or suitable name for this letter if is polish
+        """
+        print(letter)
+        switcher = {
+            'ą': "a1",
+            'ć': "c1",
+            'ę': "e1",
+            'ł': "l1",
+            'ń': "n1",
+            'ó': "o1",
+            'ś': "s1",
+            'ź': "z1",
+            'ż': "z2"
+        }
+        print(switcher.get(letter, letter))
+        return switcher.get(letter, letter)
+
     def draw_holder(self):
+        """
+        :return: read for each holder's letter image and show it on a screen
+        """
         self.read_holder()
         for i in self.holder:
             left = self.holder[i][0].left
             top = self.holder[i][0].top
 
-            if self.holder[i][1] == '?':
-                i = 'blank'
-            else:
-                i = self.holder[i][1]
-
-            address = 'Images\\letters\\' + str(i) + '.png'
+            address = 'Images\\letters\\' + self.change_name(str(self.holder[i][1])) + '.png'
             letter = pygame.image.load(address)
             letter = pygame.transform.scale(letter, (55, 55))
             self.screen.blit(letter, (left, top))
 
     def exchange_holder(self):
+        """
+        :return: exchange chosen letters from holder
+        """
         self.window_state = True
         exchange_button = pygame.image.load('Images\\wymiana.png')
         exchange_button = pygame.transform.scale(exchange_button, (120, 40))

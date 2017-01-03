@@ -1,15 +1,15 @@
 """ Board representation for computer mode"""
+# -*- coding: utf-8 -*-
 
+import ctypes
 import pygame
 from Back import BoardData
 from Back import PlayerData
-from Back import ComputerModeGame
-import ctypes
 from Back import Holder
 
 
 class ComputerMode:
-
+    """ Class responsible for board's design and calling functions from backend"""
     def __init__(self, player):
         # 1300 x 670
         # self.screen = pygame.display.set_mode(self.get_screen_size(), pygame.FULLSCREEN)
@@ -21,8 +21,6 @@ class ComputerMode:
         self.computer_player = PlayerData.Player('Computer')
 
         self.holder = Holder.Holder(self.player, self.screen)
-
-        self.game = ComputerModeGame.ComputerModeGame(self)
 
         self.end_move_button = pygame.Rect(890, 220, 120, 40)
         self.exchange_button = pygame.Rect(1020, 220, 120, 40)
@@ -37,12 +35,18 @@ class ComputerMode:
 
     @staticmethod
     def get_screen_size():
+        """
+        :return: user's screen's resolution
+        """
         user32 = ctypes.windll.user32
-        screenSize = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
-        size = (screenSize)
+        screen_size = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
+        size = (screen_size)
         return size
 
     def set_background(self):
+        """
+        :return: display widgets on screen
+        """
         background = pygame.image.load('Images\\game_background.png')
         holder = pygame.image.load('Images\\holder.png')
         self.screen = pygame.display.get_surface()
@@ -70,10 +74,16 @@ class ComputerMode:
         self.screen.blit(end_game, (1150, 600))
 
     def set_board(self):
+        """
+        :return: read board image from file
+        """
         board = pygame.image.load('Images\\board_small.jpg')
         self.screen.blit(board, (200, 20))
 
     def set_screen(self):
+        """
+        :return: display on screen players' names
+        """
         self.show_text(str(self.computer_player.score), 30, (100, 80))
         self.show_text(str(self.player.score), 30, (100, 150))
 
@@ -86,27 +96,33 @@ class ComputerMode:
         self.screen.blit(textsurface, coor)
 
     def reset_screen(self):
+        """
+        :return: set again widgets on screen
+        """
         self.holder.draw_holder()
         self.set_screen()
         pygame.display.flip()
 
     def do_want_end(self):
+        """
+        :return: display window resposible for safe exit from game
+        """
         quit_state = True
         if_end_game = pygame.image.load('Images\\if_end.png')
         if_end_game = pygame.transform.scale(if_end_game, (1300, 670))
         self.screen.blit(if_end_game, (0, 0))
-        yes = pygame.Rect(120, 440, 220, 130)
-        no = pygame.Rect(920, 440, 220, 130)
+        yes_answer = pygame.Rect(120, 440, 220, 130)
+        no_answer = pygame.Rect(920, 440, 220, 130)
         pygame.display.flip()
 
         while quit_state:
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
-                        if yes.collidepoint(pygame.mouse.get_pos()):
+                        if yes_answer.collidepoint(pygame.mouse.get_pos()):
                             return False
 
-                        if no.collidepoint(pygame.mouse.get_pos()):
+                        if no_answer.collidepoint(pygame.mouse.get_pos()):
                             self.set_background()
                             self.set_board()
                             self.reset_screen()
@@ -114,6 +130,7 @@ class ComputerMode:
                             return True
 
     def start(self):
+        """ Main loop of computer mode"""
         while self.game_state:
 
             for event in pygame.event.get():
@@ -144,6 +161,3 @@ class ComputerMode:
 
                         if self.quit_game_button.collidepoint(pygame.mouse.get_pos()):
                             self.game_state = self.do_want_end()
-
-
-

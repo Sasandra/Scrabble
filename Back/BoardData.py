@@ -43,8 +43,8 @@ class Board:
         rectangles = list()
         counter = 0
         try:
-            with open('Back\\board_grid', 'r') as r:
-                data = r.readlines()
+            with open('Back\\board_grid', 'r') as reader:
+                data = reader.readlines()
                 for i in data:
                     if '#' in i:
                         continue
@@ -54,7 +54,8 @@ class Board:
                     for j in x_y:
                         j = j.strip(' ')
                         coor.append(j)
-                    rect = pygame.Rect(float(coor[0]), float(coor[1]), float(coor[2]), float(coor[3]))
+                    rect = pygame.Rect(float(coor[0]), float(coor[1]),
+                                       float(coor[2]), float(coor[3]))
                     rectangles.append(rect)
 
                 for i in range(15):

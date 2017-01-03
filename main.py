@@ -5,14 +5,21 @@ import sys
 import pygame
 from pygame.locals import *
 from Back import PlayerData
+from Back import LettersSet
+from Back import WordsList
+from Back import BoardData
 from Front import HelloMenu
 from Front import MainMenu
-from Front import  ComputerMode
+from Front import ComputerMode
 
 pygame.init()
 pygame.display.set_caption('Scr@bble')
 
 czy = True
+
+board = BoardData.Board()
+letters = LettersSet.Letters()
+words = WordsList.Words()
 
 
 def input(events):

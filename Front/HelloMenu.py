@@ -1,9 +1,6 @@
 """First, welcome module asking about player name"""
 import pygame
-
-from Back import PlayerData
 from Front import TextBox
-from Front import MainMenu
 
 
 class HelloMenu:

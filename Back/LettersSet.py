@@ -11,7 +11,7 @@ class Letters:
         self.__letters = dict()
         self.__number_of_letters = 100
         try:
-            with open('Back/letters.txt', 'r') as reader:
+            with open('Back/letters.txt', 'r', encoding='utf-8') as reader:
                 data = reader.read()
                 data = data.replace('\n', "@")
                 data = data.split('@')

@@ -1,7 +1,6 @@
 """Main menu to choose mode of game"""
-
-import pygame
 import webbrowser
+import pygame
 
 
 class MainMenu:

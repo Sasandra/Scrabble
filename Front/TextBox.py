@@ -1,4 +1,4 @@
-"""Implementation of TextBOX from net"""
+"""Implementation of TextBOX downloaded from internet"""
 import pygame
 
 
