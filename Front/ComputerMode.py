@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import ctypes
+import time
 import pygame
 from Back import BoardData
 from Back import PlayerData
@@ -101,6 +102,16 @@ class ComputerMode:
         self.set_screen()
         pygame.display.flip()
 
+    def display_score(self):
+        background = pygame.image.load('Images\\end_score.png')
+        self.screen.blit(background, (0, 0))
+        self.show_text('Wygrana idzie do:', 100, (300, 200))
+        if self.player.score >= self.computer_player.score:
+            self.show_text(self.player.name, 120, (400, 400))
+        elif self.player.score < self.computer_player.score:
+            self.show_text(self.computer_player.name, 120, (400, 400))
+        pygame.display.flip()
+
     def do_want_end(self):
         """
         :return: display window resposible for safe exit from game
@@ -118,6 +129,8 @@ class ComputerMode:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         if yes_answer.collidepoint(pygame.mouse.get_pos()):
+                            self.display_score()
+                            time.sleep(5)
                             return False
 
                         if no_answer.collidepoint(pygame.mouse.get_pos()):
