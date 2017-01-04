@@ -11,7 +11,7 @@ class Letters:
         self.__letters = dict()
         self.__number_of_letters = 100
         try:
-            with open('Back/letters.txt', 'r', encoding='utf-8') as reader:
+            with open('Back\\letters.txt', 'r', encoding='utf-8') as reader:
                 data = reader.read()
                 data = data.replace('\n', "@")
                 data = data.split('@')
@@ -95,3 +95,11 @@ class Letters:
             self.increment_amount(i)
 
         return letter_to_return
+
+    def calculate_points(self, word):
+        """Caltulate points for given word"""
+        score = 0
+        for letter in word:
+            score += self.get_points(letter)
+
+        return score

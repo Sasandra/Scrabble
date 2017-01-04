@@ -6,6 +6,7 @@ class Words:
     """ Class which represent list of all allowed words in the game """
     def __init__(self):
         self.__words = list()
+        self.used_words = list()
         try:
             with open('words.txt', mode='r', encoding='utf-8') as reader:
                 for line in reader:
