@@ -1,0 +1,1 @@
+""" Module for generall game functions"""

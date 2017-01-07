@@ -15,6 +15,3 @@
 #         rect = pygame.Rect(float(coor[0]), float(coor[1]), float(coor[2]), float(coor[3]))
 #         pygame.draw.rect(screen, (255, 0, 0), rect, 1)
 #         pygame.display.flip()
-
-
-print('Ola'.ljust(512, '='))
