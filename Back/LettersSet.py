@@ -7,6 +7,7 @@ NamedLetter = collections.namedtuple('named_letter', 'amount points')
 
 class Letters:
     """ Class responsbile for storage and operations connected to letters tiles. """
+
     def __init__(self):
         self.__letters = dict()
         self.__number_of_letters = 100
@@ -57,7 +58,7 @@ class Letters:
         :param char: Letter which amount we want to decrease.
         """
         if self.get_amount(char) > 0:
-            self.__letters[char] = NamedLetter(self.get_amount(char)-1, self.get_points(char))
+            self.__letters[char] = NamedLetter(self.get_amount(char) - 1, self.get_points(char))
             self.__number_of_letters -= 1
 
     def random_letters(self, amount):
@@ -81,9 +82,8 @@ class Letters:
         :param char: Letter which amount we want to increase.
         """
         if self.__number_of_letters < 101:
-            self.__letters[char] = NamedLetter(self.get_amount(char)+1, self.get_points(char))
+            self.__letters[char] = NamedLetter(self.get_amount(char) + 1, self.get_points(char))
             self.__number_of_letters += 1
-
 
     def change_letters(self, letters):
         """

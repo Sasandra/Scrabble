@@ -6,6 +6,7 @@ import pygame
 
 class Holder:
     """ Class to represent player's holder for letters"""
+
     def __init__(self, player, screen):
         self.player = player
         self.holder = collections.OrderedDict()

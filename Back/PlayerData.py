@@ -5,11 +5,13 @@ from Back.LettersSet import Letters
 
 class Player:
     """Each player will have his/her own instance of this class"""
+
     def __init__(self, name):
         self.name = name
         self.letters_object = Letters()
         self.holder = self.letters_object.random_letters(7)
         self.score = 0
+        self.amout_of_pass = 0;
 
     def remove_double_clicked(self, letters):
         """
@@ -26,7 +28,6 @@ class Player:
                 continue
 
         return letters_to_return
-
 
     def exchange_letter(self, letters):
         """

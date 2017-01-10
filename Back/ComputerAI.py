@@ -6,7 +6,6 @@ import time
 
 
 class ComputerAI:
-
     def __init__(self, board=None, computer_player=None, letters=None, words=None):
         self.board = board
         self.computer_player = computer_player
@@ -22,12 +21,13 @@ class ComputerAI:
         t = time.time()
         words = list('konsfde')
         result = list()
-        for i in range(2, len(words)+1):
+        for i in range(2, len(words) + 1):
             temp = self.findsubsets(words, i)
             for j in temp:
                 print(j)
                 result.append(self.words.find_word_match_to_letters(j))
         print(time.time() - t)
+
 
 b = WordsList.Words()
 a = ComputerAI(words=b)

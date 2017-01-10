@@ -9,6 +9,7 @@ class Board:
     """
     Class which represent board
     """
+
     def __init__(self):
         self.board = collections.OrderedDict()
         self.premium = collections.OrderedDict()
@@ -66,7 +67,6 @@ class Board:
         except IOError:
             print('Plik z współrzędnymi nie został znaleziony.')
 
-
     def __hash__(self):
         result = ''
         for word in self.board:
@@ -97,4 +97,4 @@ class Board:
         if not isinstance(position, tuple):
             position = tuple(position)
         if position in self.premium:
-            return self.premium[position].factor
+            return self.premium[position]
