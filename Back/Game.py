@@ -1,23 +1,25 @@
 """ Module for generall game functions"""
 from collections import namedtuple
-
-from numpy.core.getlimits import iinfo
-
+from itertools import cycle
 from Back import WordsList
+from Back import BoardData
+from Back import PlayerData
+import time
 
 MovingLetter = namedtuple('MovingLetter', 'letter, position')
 
 
 class Game:
     def __init__(self, words_list=None, players=None, board=None, letters=None):
-        self.players = players
+        self.players = cycle(players)
+        self.players_list = players
         self.moves_counter = 0
         self.word = list()  # list for MovingLetters
         self.words_list = words_list
         self.moving_letter = MovingLetter('', ())  # letter and its position
         self.board = board
         self.letter_set = letters
-        self.current_playing_user  # user which is actually playing
+        self.current_playing_user = next(self.players)  # user which is actually playing
 
     @staticmethod
     def tuple_diff(tuple1, tuple2):
@@ -42,6 +44,14 @@ class Game:
                 return False
         return True
 
+    def find_missing_position(self, tuple1, tuple2):
+        """ return positiob between two given"""
+        diff = self.tuple_diff(tuple1, tuple2)
+        if diff[0] == 2:
+            return (tuple1[0] + 1, tuple1[1])
+        elif diff[1] == 2:
+            return (tuple1[0], tuple1[1] + 1)
+
     def positions_validation(self):
         """ check if letters are on one line vertically or horizontally"""
         positions_diff = list()
@@ -53,27 +63,101 @@ class Game:
         else:
             return False
 
+    def complete_word(self):
+        """ read letters from board which we use to create new word"""
+        for i in range(len(self.word) - 1):
+            diff = self.tuple_diff(self.word[i].position, self.word[i + 1].position)
+            if diff[0] == 2 or diff[1] == 2:
+                position = self.find_missing_position(self.word[i].position, self.word[i + 1].position)
+                letter = self.board.get_letter_from_position(position)
+                self.word.append(MovingLetter(letter, position))
+                self.word = sorted(self.word, key=lambda word: word.position)
+
+    def chcek_if_center(self):
+        """ first word must go through (7,7) position, function chcec if it is true"""
+        for i in self.word:
+            if i.position == (7, 7):
+                return True
+
+        return False
+
     def validation(self):
+        t = time.time()
         """ chceck if placed letters create allowed word and if letters are in one line"""
+        flag = True
+
+        # if self.moves_counter == 0: # first word must go through center
+        #     if not self.chcek_if_center():
+        #         return False
+
+        if len(self.word) > 2:  #
+            self.complete_word()
+
         word = ''
         for letter in self.word:
             word += letter.letter
 
-        if not self.words_list.find_if_word_in_list(word):
+        if not self.words_list.find_if_word_in_list(word):  # word not in dictionary but it can be eg. prze _ jadę
+            flag = False
+
+        if len(self.word) > 2:
+            if not self.positions_validation():
+                return False
+
+        if flag:
+            print(time.time()-t)
+            return True
+        else:
             return False
 
-        return self.positions_validation()
+    @staticmethod
+    def check_range(position):
+        """ check if position isn't out of board"""
+        x = position[0]
+        y = position[1]
+
+        if (0 <= x < 15) and (0 <= y < 15):
+            return True
+        else:
+            return False
+
+    def find_word_to_collision(self, position, from_where):
+        """ chceck if collision create avalible word"""
+        diff = tuple(self.tuple_diff(position, from_where.position))
+        next = self.board.get_letter_from_position(position)
+        word = from_where.letter
+        if diff[0] == 1:  # rows
+            while next != None:
+                word += next
+                position = (position[0] + 1, position[1])
+                next = self.board.get_letter_from_position(position)
+        elif diff[1] == 1:  # columns
+            while next != None:
+                word += next
+                position = (position[0], position[1] + 1)
+                next = self.board.get_letter_from_position(position)
+
+        return self.words_list.find_if_word_in_list(word)
 
     def collision_validation(self):
         """ chceck if new word create some collision"""
-        pass
-
-    def chcek_positions_availability(self):
-        """chec if choseen position if empty"""
+        t = time.time()
+        positions = [k.position for k in self.word]
         for i in self.word:
-            if self.board[i.position] != None:
-                return False
-        return True
+            up = (i.position[0] - 1, i.position[1])
+            down = (i.position[0] + 1, i.position[1])
+            left = (i.position[0], i.position[1] - 1)
+            right = (i.position[0], i.position[1] + 1)
+            neighbours = [up, down, left, right]
+
+            for j in neighbours:
+                if self.check_range(j) and self.board.get_letter_from_position(j) != None:
+                    if j in positions:
+                        continue
+                    else:
+                        print(self.find_word_to_collision(j, i))
+
+            print(time.time() - t)
 
     def put_word_on_board(self):
         """ mark on board letter, remove used letters form set"""
@@ -95,6 +179,72 @@ class Game:
             else:
                 score += self.letter_set.get_point(i.letter)
 
+        if self.moves_counter == 0:
+            word_factor *= 2
         score *= word_factor
 
         return score
+
+    def end_move(self):
+        """ tu sum up one single move """
+
+        if not self.validation():
+            return False
+        else:
+            self.calculate_score()
+            self.put_word_on_board()
+            self.moves_counter += 1
+            self.current_playing_user.end_move_and_reset()
+            self.current_playing_user = next(self.players)
+            return True
+
+    def pass_move(self):
+        """ if pass button was clicked"""
+        self.moves_counter += 1
+        self.current_playing_user.increment_pass()
+        self.current_playing_user = next(self.players)
+
+    def quit_button_press(self):
+        """if guit button was clicked game return name of winner in case of draw computer loses"""
+        pass
+
+
+player = (PlayerData.Player('Ola'), PlayerData.Player('Adam'))
+bord = BoardData.Board()
+bord.set_letter_on_position((3, 1), 'k')
+bord.set_letter_on_position((1, 1), 'r')
+bord.set_letter_on_position((1, 2), 'o')
+bord.set_letter_on_position((1, 3), 'b')
+bord.set_letter_on_position((1, 4), 'a')
+bord.set_letter_on_position((1, 5), 'k')
+
+word = list()
+a = MovingLetter('t', (0, 1))
+# b = MovingLetter('r', (1, 1))
+c = MovingLetter('a', (2, 1))
+d = MovingLetter('t', (4, 1))
+e = MovingLetter('o', (5, 1))
+f = MovingLetter('r', (6, 1))
+word.append(a)
+# word.append(b)
+word.append(c)
+word.append(d)
+word.append(e)
+word.append(f)
+# print(sorted(word, key=lambda word: word.position))
+for i in word:
+    bord.set_letter_on_position(i.position, i.letter)
+
+g = Game(words_list=WordsList.Words(), board=bord, players=player)
+g.word = word
+g.validation()
+
+for i in range(15):
+    for j in range(15):
+        if bord.board[i, j] == None:
+            print('_', end=' ')
+        else:
+            print(bord.board[i, j], end=' ')
+    print()
+
+g.collision_validation()
