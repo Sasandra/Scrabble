@@ -24,6 +24,19 @@ class Words:
             result += word
         return hash(result)
 
+    def add_used_word(self, word):
+        """
+        :param word: word to put on used_words list
+        """
+        self.used_words.append(word)
+
+    def find_if_word_in_used_list(self, word):
+        """
+        :param word: word to chcec if is in list used words list
+        :return: true if is, false if not
+        """
+        return word in self.used_words
+
     def find_if_word_in_list(self, word):
         """
         :param word:
