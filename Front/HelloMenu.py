@@ -5,6 +5,7 @@ from Front import TextBox
 
 class HelloMenu:
     """Class responsible for getting player name and create a new one"""
+
     def __init__(self):
         self.screen = pygame.display.set_mode((800, 600))
         menu_background = pygame.image.load('Images\\menu_background.png')

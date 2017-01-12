@@ -32,7 +32,6 @@ class Holder:
         :param letter: letter which will be change in correct form for filename
         :return: letter if letter isn't polish letter or suitable name for this letter if is polish
         """
-        print(letter)
         switcher = {
             'ą': "a1",
             'ć': "c1",
@@ -45,7 +44,6 @@ class Holder:
             'ż': "z2",
             '?': "blank"
         }
-        print(switcher.get(letter, letter))
         return switcher.get(letter, letter)
 
     def draw_holder(self):
@@ -73,6 +71,9 @@ class Holder:
         """
         :return: exchange chosen letters from holder
         """
+        if self.player.if_change_letters:
+            return
+
         self.window_state = True
         exchange_button = pygame.image.load('Images\\wymiana.png')
         exchange_button = pygame.transform.scale(exchange_button, (120, 40))
@@ -94,4 +95,15 @@ class Holder:
                                 exchange_button = pygame.transform.scale(exchange_button, (120, 40))
                                 self.screen.blit(exchange_button, (1020, 260))
                                 pygame.display.flip()
+
         self.player.exchange_letter(letter_to_change)
+
+    def remove_letter(self, letter):
+        """ remove given letter form holder"""
+        for i in self.holder:
+            if self.holder[i][1] == letter:
+                index = i
+                break
+
+        self.holder.pop(i)
+        self.player.remove_letter_from_holder(letter)

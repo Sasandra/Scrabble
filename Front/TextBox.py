@@ -4,6 +4,7 @@ import pygame
 
 class TextBox:
     """Class that implements textbox"""
+
     def __init__(self, rect, width=1):
         self.font_size = 30
         self.font = pygame.font.SysFont('Arial', self.font_size)

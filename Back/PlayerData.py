@@ -1,17 +1,16 @@
 """ Representation of one player"""
 import copy
-from Back.LettersSet import Letters
 
 
 class Player:
     """Each player will have his/her own instance of this class"""
 
-    def __init__(self, name):
+    def __init__(self, name, letters_set_object):
         self.name = name
-        self.letters_object = Letters()
+        self.letters_object = letters_set_object
         self.holder = self.letters_object.random_letters(7)
         self.score = 0
-        self.amount_of_pass = 0;
+        self.amount_of_pass = 0
         self.if_change_letters = False
 
     def remove_double_clicked(self, letters):
@@ -72,3 +71,7 @@ class Player:
         self.if_change_letters = False
         self.update_score(score)
         self.complete_holder()
+
+    def remove_letter_from_holder(self, letter):
+        if letter in self.holder:
+            self.holder.remove(letter)

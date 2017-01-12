@@ -13,7 +13,7 @@ class Game:
     def __init__(self, words_list=None, players=None, board=None, letters=None):
         self.players = cycle(players)
         self.players_list = players
-        self.moves_counter = 1
+        self.moves_counter = 0
         self.word = list()  # list for MovingLetters
         self.words_list = words_list
         self.moving_letter = MovingLetter('', ())  # letter and its position
@@ -88,6 +88,8 @@ class Game:
         """ chceck if placed letters create allowed word and if letters are in one line"""
         t = time.time()
         flag = True
+
+        self.word = sorted(self.word, key=lambda word: word.position)
 
         # check first move
         if self.moves_counter == 0:  # first word must go through center
@@ -189,6 +191,10 @@ class Game:
             self.board.set_letter_on_position(i.position, i.letter)
             self.letter_set.dekrement_amount(i.letter)
 
+    def change_player(self):
+        """ chcange current player"""
+        self.current_playing_user = next(self.players)
+
     def calculate_score(self):
         """calculate score for created word"""
         score = 0
@@ -201,7 +207,7 @@ class Game:
                 elif premium[0] == 'letter':
                     score += self.letter_set.get_point(i.letter) * premium[1]
             else:
-                score += self.letter_set.get_point(i.letter)
+                score += self.letter_set.get_points(i.letter)
 
         if self.moves_counter == 0:
             word_factor *= 2
@@ -213,6 +219,7 @@ class Game:
         """ tu sum up one single move """
 
         if not self.validation():
+            print('nie poszła walidacja?')
             return False
         else:
             result = ''
@@ -220,21 +227,22 @@ class Game:
                 result += i.letter
 
             self.calculate_score()
-            self.words_list.add_used_word(result)
+            self.words_list.add_used_word('ola')
             self.put_word_on_board()
             self.moves_counter += 1
-            self.current_playing_user.end_move_and_reset()
+
+            #self.current_playing_user.end_move_and_reset(1)
+            self.current_playing_user.end_move_and_reset(self.calculate_score())
             self.current_playing_user = next(self.players)
             self.word = list()
             return True
 
-    def pass_move(self):
+    def pass_button_press(self):
         """ if pass button was clicked"""
         self.moves_counter += 1
         self.current_playing_user.increment_pass()
         self.current_playing_user = next(self.players)
-
-        return self.check_pass()  # if false game stop
+        return not self.check_pass()  # if false game stop
 
     def quit_button_press(self):
         """if guit button was clicked game return name of winner in case of draw winner is player first on the list"""
@@ -252,46 +260,46 @@ class Game:
         return all(item >= 2 for item in pass_amounts)
 
 
-player = (PlayerData.Player('Ola'), PlayerData.Player('Adam'))
-bord = BoardData.Board()
-bord.set_letter_on_position((3, 1), 'k')
-#bord.set_letter_on_position((1, 1), 'r')
-#bord.set_letter_on_position((1, 2), 'o')
-#bord.set_letter_on_position((1, 3), 'b')
-#bord.set_letter_on_position((1, 4), 'a')
-#bord.set_letter_on_position((1, 5), 'k')
-#bord.set_letter_on_position((6, 2), 'b')
-#bord.set_letter_on_position((7, 2), 'a')
-#bord.set_letter_on_position((8, 2), 'l')
-
-lista = WordsList.Words()
-lista.add_used_word('robak')
-lista.add_used_word('bal')
-word = list()
-a = MovingLetter('t', (0, 1))
-# b = MovingLetter('r', (1, 1))
-c = MovingLetter('a', (2, 1))
-d = MovingLetter('t', (4, 1))
-e = MovingLetter('o', (5, 1))
-f = MovingLetter('r', (6, 1))
-word.append(a)
-# word.append(b)
-word.append(c)
-word.append(d)
-word.append(e)
-word.append(f)
-# print(sorted(word, key=lambda word: word.position))
-for i in word:
-    bord.set_letter_on_position(i.position, i.letter)
-
-g = Game(words_list=lista, board=bord, players=player)
-g.word = word
-print(g.validation())
-
-for i in range(15):
-    for j in range(15):
-        if bord.board[i, j] == None:
-            print('_', end=' ')
-        else:
-            print(bord.board[i, j], end=' ')
-    print()
+# player = (PlayerData.Player('Ola'), PlayerData.Player('Adam'))
+# bord = BoardData.Board()
+# bord.set_letter_on_position((3, 1), 'k')
+# #bord.set_letter_on_position((1, 1), 'r')
+# #bord.set_letter_on_position((1, 2), 'o')
+# #bord.set_letter_on_position((1, 3), 'b')
+# #bord.set_letter_on_position((1, 4), 'a')
+# #bord.set_letter_on_position((1, 5), 'k')
+# #bord.set_letter_on_position((6, 2), 'b')
+# #bord.set_letter_on_position((7, 2), 'a')
+# #bord.set_letter_on_position((8, 2), 'l')
+#
+# lista = WordsList.Words()
+# lista.add_used_word('robak')
+# lista.add_used_word('bal')
+# word = list()
+# a = MovingLetter('t', (0, 1))
+# # b = MovingLetter('r', (1, 1))
+# c = MovingLetter('a', (2, 1))
+# d = MovingLetter('t', (4, 1))
+# e = MovingLetter('o', (5, 1))
+# f = MovingLetter('r', (6, 1))
+# word.append(a)
+# # word.append(b)
+# word.append(c)
+# word.append(d)
+# word.append(e)
+# word.append(f)
+# # print(sorted(word, key=lambda word: word.position))
+# for i in word:
+#     bord.set_letter_on_position(i.position, i.letter)
+#
+# g = Game(words_list=lista, board=bord, players=player)
+# g.word = word
+# print(g.validation())
+#
+# for i in range(15):
+#     for j in range(15):
+#         if bord.board[i, j] == None:
+#             print('_', end=' ')
+#         else:
+#             print(bord.board[i, j], end=' ')
+#     print()

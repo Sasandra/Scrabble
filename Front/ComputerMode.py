@@ -4,29 +4,33 @@
 import ctypes
 import time
 import pygame
-from Back import BoardData
-from Back import PlayerData
+from collections import namedtuple
 from Back import Holder
+
+MovingLetter = namedtuple('MovingLetter', 'letter, position')
 
 
 class ComputerMode:
     """ Class responsible for board's design and calling functions from backend"""
-    def __init__(self, player):
+
+    def __init__(self, game):
         # 1300 x 670
         # self.screen = pygame.display.set_mode(self.get_screen_size(), pygame.FULLSCREEN)
         self.screen = pygame.display.set_mode((1300, 670))
         self.game_state = True
-        self.board = BoardData.Board()
+        self.game = game
+        self.you = self.game.players_list[0]
+        self.computer = self.game.players_list[1]
 
-        self.player = player
-        self.computer_player = PlayerData.Player('Computer')
-
-        self.holder = Holder.Holder(self.player, self.screen)
+        self.holder = Holder.Holder(self.you, self.screen)
 
         self.end_move_button = pygame.Rect(890, 220, 120, 40)
         self.exchange_button = pygame.Rect(1020, 220, 120, 40)
         self.pass_button = pygame.Rect(1150, 220, 120, 40)
         self.quit_game_button = pygame.Rect(1150, 600, 120, 40)
+
+        self.clicked_board_positions = list()
+        self.current_letter = ''
 
         self.set_background()
         self.set_board()
@@ -52,10 +56,10 @@ class ComputerMode:
         self.screen = pygame.display.get_surface()
         self.screen.blit(background, (0, 0))
 
-        self.show_text(self.computer_player.name, 30, (20, 50))
+        self.show_text(self.computer.name, 30, (20, 50))
         self.show_text('Wynik:', 30, (20, 80))
 
-        self.show_text(self.player.name, 30, (20, 120))
+        self.show_text(self.you.name, 30, (20, 120))
         self.show_text('Wynik:', 30, (20, 150))
 
         exchange_button = pygame.image.load('Images\\letter_exchange.png')
@@ -83,8 +87,8 @@ class ComputerMode:
         """
         :return: display on screen players' names
         """
-        self.show_text(str(self.computer_player.score), 30, (100, 80))
-        self.show_text(str(self.player.score), 30, (100, 150))
+        self.show_text(str(self.computer.score), 30, (100, 80))
+        self.show_text(str(self.you.score), 30, (100, 150))
 
     def show_text(self, text, size, coor):
         """Show given text on screen"""
@@ -106,10 +110,9 @@ class ComputerMode:
         background = pygame.image.load('Images\\end_score.png')
         self.screen.blit(background, (0, 0))
         self.show_text('Wygrana idzie do:', 100, (300, 200))
-        if self.player.score >= self.computer_player.score:
-            self.show_text(self.player.name, 120, (400, 400))
-        elif self.player.score < self.computer_player.score:
-            self.show_text(self.computer_player.name, 120, (400, 400))
+
+        result = self.game.quit_button_press()
+        self.show_text(str(result[0]), 120, (400, 400))
         pygame.display.flip()
 
     def do_want_end(self):
@@ -130,7 +133,7 @@ class ComputerMode:
                     if event.button == 1:
                         if yes_answer.collidepoint(pygame.mouse.get_pos()):
                             self.display_score()
-                            time.sleep(5)
+                            time.sleep(2)
                             return False
 
                         if no_answer.collidepoint(pygame.mouse.get_pos()):
@@ -143,7 +146,6 @@ class ComputerMode:
     def start(self):
         """ Main loop of computer mode"""
         while self.game_state:
-
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.game_state = self.do_want_end()
@@ -153,22 +155,50 @@ class ComputerMode:
                 #         pygame.display.set_mode((1300, 670))
                 #         pygame.display.flip()
 
-                if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.type == pygame.MOUSEBUTTONDOWN and self.game.current_playing_user == self.you:
                     if event.button == 1:
                         for i in range(15):
                             for j in range(15):
-                                if self.board.fields[(i, j)].collidepoint(pygame.mouse.get_pos()):
-                                    left = self.board.fields[(i, j)].left
-                                    top = self.board.fields[(i, j)].top
-                                    address = 'Images\\letters\\z1.png'
+                                if self.game.board.fields[(i, j)].collidepoint(pygame.mouse.get_pos()) and (
+                                        i, j) not in self.clicked_board_positions and self.current_letter != '':
+                                    left = self.game.board.fields[(i, j)].left
+                                    top = self.game.board.fields[(i, j)].top
+                                    address = 'Images\\letters\\' + self.holder.change_name(
+                                        self.current_letter) + '.png'
                                     letter = pygame.image.load(address)
                                     letter = pygame.transform.scale(letter, (38, 38))
                                     self.screen.blit(letter, (left, top))
+                                    self.clicked_board_positions.append((i, j))
+                                    self.holder.remove_letter(self.current_letter)
+                                    self.holder.draw_holder()
                                     pygame.display.flip()
+                                    self.game.word.append(MovingLetter(letter=self.current_letter, position=(i, j)))
+                                    self.current_letter = ''
+
+                        for i in self.holder.holder:
+                            if self.holder.holder[i][0].collidepoint(pygame.mouse.get_pos()):
+                                self.holder.draw_holder()
+                                self.current_letter = self.holder.holder[i][1]
+                                pygame.draw.rect(self.screen, (255, 0, 0), self.holder.holder[i][0], 2)
+                                pygame.display.flip()
 
                         if self.exchange_button.collidepoint(pygame.mouse.get_pos()):
                             self.holder.exchange_holder()
                             self.reset_screen()
+                            self.game.change_player()
 
                         if self.quit_game_button.collidepoint(pygame.mouse.get_pos()):
                             self.game_state = self.do_want_end()
+
+                        if self.pass_button.collidepoint(pygame.mouse.get_pos()):
+                            self.game_state = self.game.pass_button_press()
+
+                        if self.end_move_button.collidepoint(pygame.mouse.get_pos()):
+                            self.game.end_move()
+                            self.holder.draw_holder()
+                            self.display_score()
+                            pygame.display.flip()
+                            print('he?')
+
+        self.display_score()
+        time.sleep(2)

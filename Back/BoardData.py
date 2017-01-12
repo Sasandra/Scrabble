@@ -26,7 +26,7 @@ class Board:
         :return: read data about premiums from file
         """
         try:
-            with open('premia.txt', 'r', encoding='utf-8') as reader:
+            with open('Back\\premia.txt', 'r', encoding='utf-8') as reader:
                 for i in reader:
                     i = i.rstrip().replace('(', '').replace(')', '')
                     pairs = i.split(':')
@@ -44,7 +44,7 @@ class Board:
         rectangles = list()
         counter = 0
         try:
-            with open('board_grid', 'r') as reader:
+            with open('Back\\board_grid', 'r') as reader:
                 data = reader.readlines()
                 for i in data:
                     if '#' in i:

@@ -11,6 +11,7 @@ from Back import BoardData
 from Front import HelloMenu
 from Front import MainMenu
 from Front import ComputerMode
+from Back import Game
 
 pygame.init()
 pygame.display.set_caption('Scr@bble')
@@ -32,6 +33,7 @@ def input(events):
             pygame.quit()
         else:
             print(event)
+            print('ola')
 
 
 input(pygame.event.get())
@@ -39,11 +41,16 @@ input(pygame.event.get())
 if czy:
     name = HelloMenu.HelloMenu().start()
     if name:
-        player = PlayerData.Player(name)
+        player = PlayerData.Player(name=name, letters_set_object=letters)
         print(player.name)
         mode = MainMenu.MainMenu().start()
         if mode == 'computer':
-            ComputerMode.ComputerMode(player).start()
+            computer = PlayerData.Player(name='Computer', letters_set_object=letters)
+            players = list()
+            players.append(player)
+            players.append(computer)
+            game = Game.Game(words_list=words, players=players, board=board, letters=letters)
+            ComputerMode.ComputerMode(game).start()
         else:
             print('nope')
 else:
