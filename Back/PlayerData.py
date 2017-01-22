@@ -77,3 +77,11 @@ class Player:
         """ remove given letter from holder"""
         if letter in self.holder:
             self.holder.remove(letter)
+
+    def return_letter_on_holder(self, letter):
+        """ return letter from board to holder"""
+        self.holder.append(letter)
+
+    def swap_letter(self, letters):
+        """update swaped holder"""
+        self.holder = letters

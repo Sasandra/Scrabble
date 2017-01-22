@@ -179,6 +179,13 @@ class Game:
         """ chcange current player"""
         self.current_playing_user = next(self.players)
 
+    def remove_letter_from_word(self, letter):
+        """ remove letter from temporary words"""
+        for i in self.word:
+            if i.letter == letter:
+                self.word.remove(i)
+                return
+
     def calculate_score(self):
         """calculate score for created word"""
         score = 0

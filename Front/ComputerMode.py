@@ -32,6 +32,7 @@ class ComputerMode:
         self.clicked_board_positions = list()
         self.temp_clicked_board_positions = list()
         self.current_letter = ''
+        self.positions_to_swap_on_holder = list()
 
         self.set_background()
         self.set_board()
@@ -112,8 +113,11 @@ class ComputerMode:
         if pos in self.temp_clicked_board_positions:
             self.temp_clicked_board_positions.remove(pos)
 
-        print(self.game.get_letter_from_pos(pos))
-        # self.holder.return_on_holder(self.game.get_letter_from_pos(pos))
+        self.you.return_letter_on_holder(self.game.get_letter_from_pos(pos))
+        self.holder.draw_holder()
+        ## dodaj usuwanie literki ze słowa
+        self.game.remove_letter_from_word(self.game.get_letter_from_pos(pos))
+        pygame.display.flip()
 
     def display_score(self):
         """ Function to show final result"""
@@ -164,13 +168,12 @@ class ComputerMode:
                 #     if self.screen.get_flags() & pygame.FULLSCREEN:
                 #         pygame.display.set_mode((1300, 670))
                 #         pygame.display.flip()
-
                 if event.type == pygame.MOUSEBUTTONDOWN and self.game.current_playing_user == self.you:
                     if event.button == 1:
                         for i in range(15):
                             for j in range(15):
                                 if self.game.board.fields[(i, j)].collidepoint(pygame.mouse.get_pos()) and (
-                                        i, j) not in self.clicked_board_positions and self.current_letter != '':
+                                i, j) not in self.temp_clicked_board_positions and self.current_letter != '':
                                     left = self.game.board.fields[(i, j)].left
                                     top = self.game.board.fields[(i, j)].top
                                     address = 'Images\\letters\\' + self.holder.change_name(
@@ -197,13 +200,13 @@ class ComputerMode:
                             self.reset_screen()
                             self.game.change_player()
 
-                        elif self.quit_game_button.collidepoint(pygame.mouse.get_pos()):
+                        if self.quit_game_button.collidepoint(pygame.mouse.get_pos()):
                             self.game_state = self.do_want_end()
 
-                        elif self.pass_button.collidepoint(pygame.mouse.get_pos()):
+                        if self.pass_button.collidepoint(pygame.mouse.get_pos()):
                             self.game_state = self.game.pass_button_press()
 
-                        elif self.end_move_button.collidepoint(pygame.mouse.get_pos()):
+                        if self.end_move_button.collidepoint(pygame.mouse.get_pos()):
                             self.game.end_move()
                             self.holder.draw_holder()
                             #  self.display_score()
@@ -212,6 +215,7 @@ class ComputerMode:
 
                     if event.button == 3:
                         for i in self.temp_clicked_board_positions:
+                            print(self.holder.holder)
                             temp_rect = self.game.board.fields[i]
                             if temp_rect.collidepoint(pygame.mouse.get_pos()):
                                 left = temp_rect.left
@@ -222,8 +226,16 @@ class ComputerMode:
                                 self.screen.blit(letter, (left, top))
                                 # usun z temporary, word, zwróc na holder
                                 self.remove_letter_fromm_board(i)
-                                # self.temp_clicked_board_positions.remove(i)
                                 pygame.display.flip()
+
+                        for i in self.holder.holder:
+                            if self.holder.holder[i][0].collidepoint(pygame.mouse.get_pos()):
+                                self.positions_to_swap_on_holder.append((i, self.holder.holder[i][1]))
+                                if len(self.positions_to_swap_on_holder) == 2:
+                                    self.holder.swap_letters(self.positions_to_swap_on_holder)
+                                    self.positions_to_swap_on_holder = list()
+                                    self.holder.draw_holder()
+                                    pygame.display.flip()
 
         self.display_score()
         time.sleep(2)

@@ -23,7 +23,7 @@ class Holder:
         letters = self.player.holder
         coor = 880
         for i in range(len(letters)):
-            self.holder.update({i: (pygame.Rect(coor, 120, 55, 55), letters[i])})
+            self.holder[i] = (pygame.Rect(coor, 120, 55, 55), letters[i])
             coor += 57
 
     @staticmethod
@@ -110,4 +110,29 @@ class Holder:
 
     def return_on_holder(self, letter):
         """ return letter from board to holder"""
-        print(max(self.holder.keys))
+        holder_keys = list(self.holder.keys())
+
+        if holder_keys:
+            max_index = holder_keys[-1]
+            start_coor = self.holder[max_index][0].left + 57
+            max_index += 1
+        else:
+            max_index = 0
+            start_coor = 880
+
+        self.holder[max_index] = (pygame.Rect(start_coor, 120, 55, 55), letter)
+        self.player.return_letter_on_holder(letter)
+        print(self.holder)
+        print(list(self.holder.keys()))
+
+    def swap_letters(self, positions):
+        """ swap letters on holder"""
+        letter_1 = positions[0]
+        letter_2 = positions[1]
+
+        self.holder[letter_1[0]] = (self.holder[letter_1[0]][0], letter_2[1])
+        self.holder[letter_2[0]] = (self.holder[letter_2[0]][0], letter_1[1])
+
+        letters = [x[1] for x in self.holder.values()]
+
+        self.player.swap_letter(letters)
