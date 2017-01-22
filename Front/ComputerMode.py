@@ -1,10 +1,10 @@
 """ Board representation for computer mode"""
 # -*- coding: utf-8 -*-
 
+from collections import namedtuple
 import ctypes
 import time
 import pygame
-from collections import namedtuple
 from Back import Holder
 
 MovingLetter = namedtuple('MovingLetter', 'letter, position')
@@ -30,6 +30,7 @@ class ComputerMode:
         self.quit_game_button = pygame.Rect(1150, 600, 120, 40)
 
         self.clicked_board_positions = list()
+        self.temp_clicked_board_positions = list()
         self.current_letter = ''
 
         self.set_background()
@@ -106,7 +107,16 @@ class ComputerMode:
         self.set_screen()
         pygame.display.flip()
 
+    def remove_letter_fromm_board(self, pos):
+        """ Function to remove clicked letters from board"""
+        if pos in self.temp_clicked_board_positions:
+            self.temp_clicked_board_positions.remove(pos)
+
+        print(self.game.get_letter_from_pos(pos))
+        # self.holder.return_on_holder(self.game.get_letter_from_pos(pos))
+
     def display_score(self):
+        """ Function to show final result"""
         background = pygame.image.load('Images\\end_score.png')
         self.screen.blit(background, (0, 0))
         self.show_text('Wygrana idzie do:', 100, (300, 200))
@@ -136,7 +146,7 @@ class ComputerMode:
                             time.sleep(2)
                             return False
 
-                        if no_answer.collidepoint(pygame.mouse.get_pos()):
+                        elif no_answer.collidepoint(pygame.mouse.get_pos()):
                             self.set_background()
                             self.set_board()
                             self.reset_screen()
@@ -168,7 +178,7 @@ class ComputerMode:
                                     letter = pygame.image.load(address)
                                     letter = pygame.transform.scale(letter, (38, 38))
                                     self.screen.blit(letter, (left, top))
-                                    self.clicked_board_positions.append((i, j))
+                                    self.temp_clicked_board_positions.append((i, j))
                                     self.holder.remove_letter(self.current_letter)
                                     self.holder.draw_holder()
                                     pygame.display.flip()
@@ -182,23 +192,38 @@ class ComputerMode:
                                 pygame.draw.rect(self.screen, (255, 0, 0), self.holder.holder[i][0], 2)
                                 pygame.display.flip()
 
-                        if self.exchange_button.collidepoint(pygame.mouse.get_pos()):
+                        if self.exchange_button.collidepoint(pygame.mouse.get_pos()) and len(self.game.word) == 0:
                             self.holder.exchange_holder()
                             self.reset_screen()
                             self.game.change_player()
 
-                        if self.quit_game_button.collidepoint(pygame.mouse.get_pos()):
+                        elif self.quit_game_button.collidepoint(pygame.mouse.get_pos()):
                             self.game_state = self.do_want_end()
 
-                        if self.pass_button.collidepoint(pygame.mouse.get_pos()):
+                        elif self.pass_button.collidepoint(pygame.mouse.get_pos()):
                             self.game_state = self.game.pass_button_press()
 
-                        if self.end_move_button.collidepoint(pygame.mouse.get_pos()):
+                        elif self.end_move_button.collidepoint(pygame.mouse.get_pos()):
                             self.game.end_move()
                             self.holder.draw_holder()
-                            self.display_score()
+                            #  self.display_score()
                             pygame.display.flip()
                             print('he?')
+
+                    if event.button == 3:
+                        for i in self.temp_clicked_board_positions:
+                            temp_rect = self.game.board.fields[i]
+                            if temp_rect.collidepoint(pygame.mouse.get_pos()):
+                                left = temp_rect.left
+                                top = temp_rect.top
+                                address = self.game.create_file_name(i)
+                                letter = pygame.image.load(address)
+                                letter = pygame.transform.scale(letter, (38, 38))
+                                self.screen.blit(letter, (left, top))
+                                # usun z temporary, word, zwróc na holder
+                                self.remove_letter_fromm_board(i)
+                                # self.temp_clicked_board_positions.remove(i)
+                                pygame.display.flip()
 
         self.display_score()
         time.sleep(2)

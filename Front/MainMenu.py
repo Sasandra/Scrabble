@@ -89,17 +89,17 @@ class MainMenu:
                             pygame.display.flip()
                             self.menu_state = False
 
-                        if self.instruction_button.collidepoint(pygame.mouse.get_pos()):
+                        elif self.instruction_button.collidepoint(pygame.mouse.get_pos()):
                             self.screen.blit(self.button_on_click('instruction'), (189, 385))
                             pygame.display.flip()
                             webbrowser.open_new(r'Documentation\\instrukcja.pdf')
 
-                        if self.network_button.collidepoint(pygame.mouse.get_pos()):
+                        elif self.network_button.collidepoint(pygame.mouse.get_pos()):
                             self.screen.blit(self.button_on_click('network'), (189, 295))
                             pygame.display.flip()
                             return 'network'
 
-                        if self.computer_button.collidepoint(pygame.mouse.get_pos()):
+                        elif self.computer_button.collidepoint(pygame.mouse.get_pos()):
                             self.screen.blit(self.button_on_click('computer'), (189, 200))
                             pygame.display.flip()
                             return 'computer'
@@ -110,14 +110,14 @@ class MainMenu:
                             self.screen.blit(self.button_out_click('exit'), (189, 475))
                             pygame.display.flip()
 
-                        if self.instruction_button.collidepoint(pygame.mouse.get_pos()):
+                        elif self.instruction_button.collidepoint(pygame.mouse.get_pos()):
                             self.screen.blit(self.button_out_click('instruction'), (189, 385))
                             pygame.display.flip()
 
-                        if self.network_button.collidepoint(pygame.mouse.get_pos()):
+                        elif self.network_button.collidepoint(pygame.mouse.get_pos()):
                             self.screen.blit(self.button_out_click('network'), (189, 295))
                             pygame.display.flip()
 
-                        if self.computer_button.collidepoint(pygame.mouse.get_pos()):
+                        elif self.computer_button.collidepoint(pygame.mouse.get_pos()):
                             self.screen.blit(self.button_out_click('computer'), (189, 200))
                             pygame.display.flip()

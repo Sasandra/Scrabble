@@ -1,15 +1,13 @@
 """ Module for generall game functions"""
 from collections import namedtuple
 from itertools import cycle
-from Back import WordsList
-from Back import BoardData
-from Back import PlayerData
-import time
 
 MovingLetter = namedtuple('MovingLetter', 'letter, position')
 
 
 class Game:
+    """Class resposible for game strategy"""
+
     def __init__(self, words_list=None, players=None, board=None, letters=None):
         self.players = cycle(players)
         self.players_list = players
@@ -58,10 +56,7 @@ class Game:
         for i in range(len(self.word) - 1):
             positions_diff.append(self.tuple_diff(self.word[i].position, self.word[i + 1].position))
 
-        if self.is_horizontal(positions_diff) or self.is_verticall(positions_diff):
-            return True
-        else:
-            return False
+        return self.is_horizontal(positions_diff) or self.is_verticall(positions_diff)
 
     def complete_word(self):
         """ read letters from board which we use to create new word"""
@@ -70,7 +65,7 @@ class Game:
             if diff[0] == 2 or diff[1] == 2:
                 position = self.find_missing_position(self.word[i].position, self.word[i + 1].position)
                 letter = self.board.get_letter_from_position(position)
-                if letter == None:
+                if letter is None:
                     continue
                 else:
                     self.word.append(MovingLetter(letter, position))
@@ -86,7 +81,6 @@ class Game:
 
     def validation(self):
         """ chceck if placed letters create allowed word and if letters are in one line"""
-        t = time.time()
         flag = True
 
         self.word = sorted(self.word, key=lambda word: word.position)
@@ -126,52 +120,44 @@ class Game:
             if False in collisions:  # if some collision does not create a allowed word
                 return False
 
-        if flag:
-            print(time.time() - t)
-            return True
-        else:
-            return False
+        return flag
 
     @staticmethod
     def check_range(position):
         """ check if position isn't out of board"""
-        x = position[0]
-        y = position[1]
+        x_coor = position[0]
+        y_coor = position[1]
 
-        if (0 <= x < 15) and (0 <= y < 15):
-            return True
-        else:
-            return False
+        return (0 <= x_coor < 15) and (0 <= y_coor < 15)
 
     def find_word_to_collision(self, position, from_where):
         """ check if collision create avalible word"""
         diff = tuple(self.tuple_diff(position, from_where.position))
-        next = self.board.get_letter_from_position(position)
+        next_letter = self.board.get_letter_from_position(position)
         word = from_where.letter
         if diff[0] == 1:  # rows
-            while next != None:
-                word += next
+            while next_letter != None:
+                word += next_letter
                 position = (position[0] + 1, position[1])
-                next = self.board.get_letter_from_position(position)
+                next_letter = self.board.get_letter_from_position(position)
         elif diff[1] == 1:  # columns
-            while next != None:
-                word += next
+            while next_letter != None:
+                word += next_letter
                 position = (position[0], position[1] + 1)
-                next = self.board.get_letter_from_position(position)
+                next_letter = self.board.get_letter_from_position(position)
 
         return self.words_list.find_if_word_in_used_list(word)
 
     def collision_validation(self):
         """ chceck if new word create some collision"""
-        t = time.time()
         positions = [k.position for k in self.word]
         collisions = []
         for i in self.word:
-            up = (i.position[0] - 1, i.position[1])
+            top = (i.position[0] - 1, i.position[1])
             down = (i.position[0] + 1, i.position[1])
             left = (i.position[0], i.position[1] - 1)
             right = (i.position[0], i.position[1] + 1)
-            neighbours = [up, down, left, right]
+            neighbours = [top, down, left, right]
 
             for j in neighbours:
                 if self.check_range(j) and self.board.get_letter_from_position(j) != None:
@@ -181,8 +167,6 @@ class Game:
                         print(self.find_word_to_collision(j, i))
                         collisions.append(self.find_word_to_collision(j, i))
 
-        print(collisions)
-        print(time.time() - t)
         return collisions
 
     def put_word_on_board(self):
@@ -219,7 +203,7 @@ class Game:
         """ tu sum up one single move """
 
         if not self.validation():
-            print('nie poszła walidacja?')
+            print('nie poszła walidacja')
             return False
         else:
             result = ''
@@ -231,7 +215,6 @@ class Game:
             self.put_word_on_board()
             self.moves_counter += 1
 
-            #self.current_playing_user.end_move_and_reset(1)
             self.current_playing_user.end_move_and_reset(self.calculate_score())
             self.current_playing_user = next(self.players)
             self.word = list()
@@ -259,6 +242,39 @@ class Game:
         pass_amounts = [i.amount_of_pass for i in self.players_list]
         return all(item >= 2 for item in pass_amounts)
 
+    def check_type_of_field(self, pos):
+        """ check type of filed from which we want to take tile """
+        if pos in self.board.premium:
+            return self.board.get_premium_from_position(pos)
+        else:
+            return None
+
+    def create_file_name(self, pos):
+        """ create filename to read to put on board when we want to take off tile"""
+        premium = self.check_type_of_field(pos)
+        address = "Images\\empty_"
+        if premium is None:
+            address += 'field'
+        else:
+            if premium.kind == 'letter':
+                address += 'l'
+            else:
+                address += 'w'
+
+            if premium.factor == 2:
+                address += '2'
+            else:
+                address += '3'
+
+        address += '.png'
+
+        return address
+
+    def get_letter_from_pos(self, pos):
+        """ Method get letter from given position"""
+        for i in self.word:
+            if i.position == pos:
+                return i.letter
 
 # player = (PlayerData.Player('Ola'), PlayerData.Player('Adam'))
 # bord = BoardData.Board()
@@ -302,4 +318,4 @@ class Game:
 #             print('_', end=' ')
 #         else:
 #             print(bord.board[i, j], end=' ')
-#     print()
+#     ol()

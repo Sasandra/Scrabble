@@ -1,1 +1,1 @@
-__all__ = ['HelloMenu', 'TextBox', 'MainMenu', 'ComputerMode', 'NetworkMode']
+__all__ = ['HelloMenu', 'TextBox', 'MainMenu', 'ComputerMode', 'NetworkMode', 'ComputerMode']

@@ -89,7 +89,7 @@ class Holder:
                             if self.holder[i][0].collidepoint(pygame.mouse.get_pos()):
                                 letter_to_change.append(self.holder[i][1])
                                 self.active_letters(i)
-                            if self.end_exchange.collidepoint(pygame.mouse.get_pos()):
+                            elif self.end_exchange.collidepoint(pygame.mouse.get_pos()):
                                 self.window_state = False
                                 exchange_button = pygame.image.load('Images\\wymiana_hide.png')
                                 exchange_button = pygame.transform.scale(exchange_button, (120, 40))
@@ -105,5 +105,9 @@ class Holder:
                 index = i
                 break
 
-        self.holder.pop(i)
+        self.holder.pop(index)
         self.player.remove_letter_from_holder(letter)
+
+    def return_on_holder(self, letter):
+        """ return letter from board to holder"""
+        print(max(self.holder.keys))

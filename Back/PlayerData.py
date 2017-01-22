@@ -46,6 +46,7 @@ class Player:
             self.if_change_letters = True
 
     def complete_holder(self):
+        """ Random letter to remove lack of letters on holder"""
         amount_of_lack_letters = 7 - len(self.holder)
         letters = self.letters_object.random_letters(amount_of_lack_letters)
         for i in letters:
@@ -73,5 +74,6 @@ class Player:
         self.complete_holder()
 
     def remove_letter_from_holder(self, letter):
+        """ remove given letter from holder"""
         if letter in self.holder:
             self.holder.remove(letter)
