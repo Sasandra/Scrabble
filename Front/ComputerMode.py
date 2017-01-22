@@ -38,6 +38,7 @@ class ComputerMode:
         self.set_board()
         self.set_screen()
         self.holder.draw_holder()
+        self.set_legenda()
         pygame.display.flip()
 
     @staticmethod
@@ -156,6 +157,46 @@ class ComputerMode:
                             self.reset_screen()
                             pygame.display.flip()
                             return True
+
+    def set_legenda(self):
+        myfont = pygame.font.SysFont("Cinnamon Cake", 30)
+
+        background = pygame.image.load('Images\\menu_background.png')
+        background = pygame.transform.scale(background, (185, 238))
+        self.screen.blit(background, (875, 420))
+
+        letter_x_2 = pygame.image.load('Images\\empty_l2.png')
+        letter_x_2 = pygame.transform.scale(letter_x_2, (40, 40))
+        self.screen.blit(letter_x_2, (880, 425))
+
+        letter_x_2_label = myfont.render("2 * litera", 1, (255, 255, 255))
+        self.screen.blit(letter_x_2_label, (925, 430))
+
+        letter_x_3 = pygame.image.load('Images\\empty_l3.png')
+        letter_x_3 = pygame.transform.scale(letter_x_3, (40, 40))
+        self.screen.blit(letter_x_3, (880, 470))
+
+        letter_x_3_label = myfont.render("3 * litera", 1, (255, 255, 255))
+        self.screen.blit(letter_x_3_label, (925, 475))
+
+        word_x_2 = pygame.image.load('Images\\empty_w2.png')
+        word_x_2 = pygame.transform.scale(word_x_2, (40, 40))
+        self.screen.blit(word_x_2, (880, 560))
+
+        word_x_2_label = myfont.render("2 * słowo", 1, (255, 255, 255))
+        self.screen.blit(word_x_2_label, (925, 565))
+
+
+        word_x_3 = pygame.image.load('Images\\empty_w3.png')
+        word_x_3 = pygame.transform.scale(word_x_3, (40, 40))
+        self.screen.blit(word_x_3, (880, 605))
+
+        word_x_3_label = myfont.render("3 * słowo", 1, (255, 255, 255))
+        self.screen.blit(word_x_3_label, (925, 610))
+
+
+
+
 
     def start(self):
         """ Main loop of computer mode"""
