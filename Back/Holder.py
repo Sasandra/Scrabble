@@ -67,6 +67,11 @@ class Holder:
         pygame.draw.rect(self.screen, (255, 0, 0), self.holder[index][0], 2)
         pygame.display.flip()
 
+    def disactive_letters(self, index):
+        """ display rectangle around chosen letter to disactive"""
+        pygame.draw.rect(self.screen, (0, 255, 0), self.holder[index][0], 2)
+        pygame.display.flip()
+
     def exchange_holder(self):
         """
         :return: exchange chosen letters from holder
@@ -79,6 +84,7 @@ class Holder:
         exchange_button = pygame.transform.scale(exchange_button, (120, 40))
         self.screen.blit(exchange_button, (1020, 260))
         pygame.display.flip()
+        clicked_letters = list()
 
         letter_to_change = list()
         while self.window_state:
@@ -87,15 +93,19 @@ class Holder:
                     if event.button == 1:
                         for i in self.holder:
                             if self.holder[i][0].collidepoint(pygame.mouse.get_pos()):
-                                letter_to_change.append(self.holder[i][1])
-                                self.active_letters(i)
+                                if self.holder[i][0] not in clicked_letters:
+                                    letter_to_change.append(self.holder[i][1])
+                                    self.active_letters(i)
+                                    clicked_letters.append(self.holder[i][0])
+                                else:
+                                    self.disactive_letters(i)
+                                    letter_to_change.remove(self.holder[i][1])
                             elif self.end_exchange.collidepoint(pygame.mouse.get_pos()):
                                 self.window_state = False
                                 exchange_button = pygame.image.load('Images\\wymiana_hide.png')
                                 exchange_button = pygame.transform.scale(exchange_button, (120, 40))
                                 self.screen.blit(exchange_button, (1020, 260))
                                 pygame.display.flip()
-
         if len(letter_to_change) == 0:
             return False
         else:
