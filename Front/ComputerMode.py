@@ -21,6 +21,7 @@ class ComputerMode:
         self.game = game
         self.you = self.game.players_list[0]
         self.computer = self.game.players_list[1]
+        self.current_player_name = None
 
         self.holder = Holder.Holder(self.you, self.screen)
 
@@ -39,6 +40,7 @@ class ComputerMode:
         self.set_screen()
         self.holder.draw_holder()
         self.set_legenda()
+        self.set_current_palyer_name()
         pygame.display.flip()
 
     @staticmethod
@@ -88,7 +90,7 @@ class ComputerMode:
 
     def set_screen(self):
         """
-        :return: display on screen players' names
+        :return: display on screen players' score
         """
         self.show_text(str(self.computer.score), 30, (100, 80))
         self.show_text(str(self.you.score), 30, (100, 150))
@@ -120,7 +122,7 @@ class ComputerMode:
         self.game.remove_letter_from_word(self.game.get_letter_from_pos(pos))
         pygame.display.flip()
 
-    def display_score(self):
+    def display_final_score(self):
         """ Function to show final result"""
         background = pygame.image.load('Images\\end_score.png')
         self.screen.blit(background, (0, 0))
@@ -147,7 +149,7 @@ class ComputerMode:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         if yes_answer.collidepoint(pygame.mouse.get_pos()):
-                            self.display_score()
+                            self.display_final_score()
                             time.sleep(2)
                             return False
 
@@ -159,6 +161,7 @@ class ComputerMode:
                             return True
 
     def set_legenda(self):
+        """ show legenda bout premiums"""
         myfont = pygame.font.SysFont("Cinnamon Cake", 30)
 
         background = pygame.image.load('Images\\menu_background.png')
@@ -194,9 +197,20 @@ class ComputerMode:
         word_x_3_label = myfont.render("3 * słowo", 1, (255, 255, 255))
         self.screen.blit(word_x_3_label, (925, 610))
 
+    def set_current_palyer_name(self):
+        """ show curent playing player"""
+        myfont = pygame.font.SysFont("Cinnamon Cake", 50)
+        background = pygame.image.load('Images\\game_background.png')
+        background = pygame.transform.scale(background, (450, 60))
+        self.screen.blit(background, (870, 45))
 
+        current_player_name = myfont.render(self.game.current_playing_user.name, 1, (255, 255, 255))
+        self.screen.blit(current_player_name, (880, 50))
 
-
+    def display_score(self):
+        background = pygame.image.load('Images\\menu_background.png')
+        background = pygame.transform.scale(background, (60, 28))
+        self.screen.blit(background, (100, 80))
 
     def start(self):
         """ Main loop of computer mode"""
@@ -237,15 +251,19 @@ class ComputerMode:
                                 pygame.display.flip()
 
                         if self.exchange_button.collidepoint(pygame.mouse.get_pos()) and len(self.game.word) == 0:
-                            self.holder.exchange_holder()
-                            self.reset_screen()
-                            self.game.change_player()
+                            if self.holder.exchange_holder():
+                                self.reset_screen()
+                                self.game.change_player()
+                                self.set_current_palyer_name()
+                                pygame.display.update()
 
                         if self.quit_game_button.collidepoint(pygame.mouse.get_pos()):
                             self.game_state = self.do_want_end()
 
                         if self.pass_button.collidepoint(pygame.mouse.get_pos()):
                             self.game_state = self.game.pass_button_press()
+                            self.set_current_palyer_name()
+                            pygame.display.update()
 
                         if self.end_move_button.collidepoint(pygame.mouse.get_pos()):
                             self.game.end_move()
@@ -253,6 +271,9 @@ class ComputerMode:
                             #  self.display_score()
                             pygame.display.flip()
                             print('he?')
+                            self.set_current_palyer_name()
+                            self.display_score()
+                            pygame.display.update()
 
                     if event.button == 3:
                         for i in self.temp_clicked_board_positions:
@@ -278,5 +299,5 @@ class ComputerMode:
                                     self.holder.draw_holder()
                                     pygame.display.flip()
 
-        self.display_score()
+        self.display_final_score()
         time.sleep(2)

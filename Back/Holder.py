@@ -96,7 +96,11 @@ class Holder:
                                 self.screen.blit(exchange_button, (1020, 260))
                                 pygame.display.flip()
 
-        self.player.exchange_letter(letter_to_change)
+        if len(letter_to_change) == 0:
+            return False
+        else:
+            self.player.exchange_letter(letter_to_change)
+            return True
 
     def remove_letter(self, letter):
         """ remove given letter form holder"""

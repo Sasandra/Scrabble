@@ -208,7 +208,7 @@ class Game:
 
     def end_move(self):
         """ tu sum up one single move """
-
+        print(self.current_playing_user.name)
         if not self.validation():
             print('nie poszła walidacja')
             return False
@@ -225,6 +225,7 @@ class Game:
             self.current_playing_user.end_move_and_reset(self.calculate_score())
             self.current_playing_user = next(self.players)
             self.word = list()
+            print(self.current_playing_user.name)
             return True
 
     def pass_button_press(self):
