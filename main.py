@@ -49,6 +49,8 @@ if czy:
             players = list()
             players.append(player)
             players.append(computer)
+            print(computer.holder)
+            print(player.holder)
             game = Game.Game(words_list=words, players=players, board=board, letters=letters)
             ComputerMode.ComputerMode(game).start()
         else:
