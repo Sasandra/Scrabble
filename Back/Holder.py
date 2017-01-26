@@ -100,6 +100,7 @@ class Holder:
                                 else:
                                     self.disactive_letters(i)
                                     letter_to_change.remove(self.holder[i][1])
+                                    clicked_letters.remove(self.holder[i][0])
                             elif self.end_exchange.collidepoint(pygame.mouse.get_pos()):
                                 self.window_state = False
                                 exchange_button = pygame.image.load('Images\\wymiana_hide.png')

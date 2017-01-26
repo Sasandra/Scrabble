@@ -208,7 +208,6 @@ class Game:
 
     def end_move(self):
         """ tu sum up one single move """
-        print(self.current_playing_user.name)
         if not self.validation():
             print('nie poszła walidacja')
             return False
@@ -217,15 +216,13 @@ class Game:
             for i in self.word:
                 result += i.letter
 
-            self.calculate_score()
-            self.words_list.add_used_word('ola')
             self.put_word_on_board()
-            self.moves_counter += 1
 
             self.current_playing_user.end_move_and_reset(self.calculate_score())
+            print(self.current_playing_user.score)
             self.current_playing_user = next(self.players)
             self.word = list()
-            print(self.current_playing_user.name)
+
             return True
 
     def pass_button_press(self):

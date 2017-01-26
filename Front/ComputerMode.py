@@ -208,9 +208,17 @@ class ComputerMode:
         self.screen.blit(current_player_name, (880, 50))
 
     def display_score(self):
-        background = pygame.image.load('Images\\menu_background.png')
+        myfont = pygame.font.SysFont("Cinnamon Cake", 30)
+        background = pygame.image.load('Images\\game_background.png')
         background = pygame.transform.scale(background, (60, 28))
-        self.screen.blit(background, (100, 80))
+        if self.game.current_playing_user != self.you:
+            self.screen.blit(background, (100, 150))
+            score = myfont.render(str(self.you.score), 1, (255, 255, 255))
+            self.screen.blit(score, (100, 150))
+        else:
+            self.screen.blit(background, (100, 80))
+            score = myfont.render(str(self.computer.score), 1, (255, 255, 255))
+            self.screen.blit(score, (100, 80))
 
     def start(self):
         """ Main loop of computer mode"""
@@ -252,10 +260,10 @@ class ComputerMode:
 
                         if self.exchange_button.collidepoint(pygame.mouse.get_pos()) and len(self.game.word) == 0:
                             if self.holder.exchange_holder():
-                                self.reset_screen()
                                 self.game.change_player()
                                 self.set_current_palyer_name()
-                                pygame.display.update()
+                            self.reset_screen()
+                            pygame.display.update()
 
                         if self.quit_game_button.collidepoint(pygame.mouse.get_pos()):
                             self.game_state = self.do_want_end()
@@ -268,11 +276,10 @@ class ComputerMode:
                         if self.end_move_button.collidepoint(pygame.mouse.get_pos()):
                             self.game.end_move()
                             self.holder.draw_holder()
-                            #  self.display_score()
+                            self.display_score()
                             pygame.display.flip()
                             print('he?')
                             self.set_current_palyer_name()
-                            self.display_score()
                             pygame.display.update()
 
                     if event.button == 3:
