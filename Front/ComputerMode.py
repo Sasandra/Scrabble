@@ -55,6 +55,22 @@ class ComputerMode:
         size = (screen_size)
         return size
 
+    def set_buttons(self):
+        """draw buttons on left side of board: pass, end_move, exchange, end_game"""
+        exchange_button = pygame.image.load('Images\\letter_exchange.png')
+        exchange_button = pygame.transform.scale(exchange_button, (120, 40))
+        pass_button = pygame.image.load('Images\\pass.png')
+        pass_button = pygame.transform.scale(pass_button, (120, 40))
+        end_move = pygame.image.load('Images\\move_end.png')
+        end_move = pygame.transform.scale(end_move, (120, 40))
+        end_game = pygame.image.load('Images\\game-end.png')
+        end_game = pygame.transform.scale(end_game, (120, 40))
+
+        self.screen.blit(end_move, (890, 220))
+        self.screen.blit(exchange_button, (1020, 220))
+        self.screen.blit(pass_button, (1150, 220))
+        self.screen.blit(end_game, (1150, 600))
+
     def set_background(self):
         """
         :return: display widgets on screen
@@ -69,19 +85,7 @@ class ComputerMode:
         self.show_text(self.you.name, 30, (20, 120))
         self.show_text('Wynik:', 30, (20, 150))
 
-        exchange_button = pygame.image.load('Images\\letter_exchange.png')
-        exchange_button = pygame.transform.scale(exchange_button, (120, 40))
-        pass_button = pygame.image.load('Images\\pass.png')
-        pass_button = pygame.transform.scale(pass_button, (120, 40))
-        end_move = pygame.image.load('Images\\move_end.png')
-        end_move = pygame.transform.scale(end_move, (120, 40))
-        end_game = pygame.image.load('Images\\game-end.png')
-        end_game = pygame.transform.scale(end_game, (120, 40))
-
-        self.screen.blit(end_move, (890, 220))
-        self.screen.blit(exchange_button, (1020, 220))
-        self.screen.blit(pass_button, (1150, 220))
-        self.screen.blit(end_game, (1150, 600))
+        self.set_buttons()
 
     def set_board(self):
         """
@@ -140,10 +144,10 @@ class ComputerMode:
         """
         quit_state = True
         if_end_game = pygame.image.load('Images\\if_end.png')
-        if_end_game = pygame.transform.scale(if_end_game, (1300, 670))
-        self.screen.blit(if_end_game, (0, 0))
-        yes_answer = pygame.Rect(120, 440, 220, 130)
-        no_answer = pygame.Rect(920, 440, 220, 130)
+        if_end_game = pygame.transform.scale(if_end_game, (415, 200))
+        self.screen.blit(if_end_game, (872, 100))
+        yes_answer = pygame.Rect(908, 220, 78, 60)
+        no_answer = pygame.Rect(1165, 220, 75, 60)
         pygame.display.flip()
 
         while quit_state:
@@ -156,9 +160,11 @@ class ComputerMode:
                             return False
 
                         elif no_answer.collidepoint(pygame.mouse.get_pos()):
-                            self.set_background()
-                            self.set_board()
-                            self.reset_screen()
+                            if_end_game = pygame.image.load('Images\\game_background.png')
+                            if_end_game = pygame.transform.scale(if_end_game, (415, 200))
+                            self.screen.blit(if_end_game, (872, 100))
+                            self.set_buttons()
+                            self.holder.draw_holder()
                             pygame.display.flip()
                             return True
 
@@ -304,11 +310,11 @@ class ComputerMode:
                             pygame.display.flip()
                             pygame.display.update()
 
-                    elif event.button == 1:
+                    if event.button == 1:
                         if self.quit_game_button.collidepoint(pygame.mouse.get_pos()):
                             self.game_state = self.do_want_end()
 
-                    elif event.button == 3 and self.game.current_playing_user == self.you:
+                    if event.button == 3 and self.game.current_playing_user == self.you:
                         for i in self.temp_clicked_board_positions:
                             temp_rect = self.game.board.fields[i]
                             if temp_rect.collidepoint(pygame.mouse.get_pos()):
@@ -316,10 +322,11 @@ class ComputerMode:
                                 self.remove_letter_fromm_board(i)
                                 pygame.display.flip()
 
-                    elif event.button == 3:
+                    if event.button == 3:
                         for i in self.holder.holder:
                             if self.holder.holder[i][0].collidepoint(pygame.mouse.get_pos()):
                                 self.positions_to_swap_on_holder.append((i, self.holder.holder[i][1]))
+                                self.holder.choose_letters(i)
                                 if len(self.positions_to_swap_on_holder) == 2:
                                     self.holder.swap_letters(self.positions_to_swap_on_holder)
                                     self.positions_to_swap_on_holder = list()

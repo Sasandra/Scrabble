@@ -71,6 +71,11 @@ class Holder:
         pygame.draw.rect(self.screen, (0, 255, 0), self.holder[index][0], 2)
         pygame.display.flip()
 
+    def choose_letters(self, index):
+        """ display rectangle around chosen letters to swap on holder"""
+        pygame.draw.rect(self.screen, (0, 162, 232), self.holder[index][0], 2)
+        pygame.display.flip()
+
     def exchange_holder(self):
         """
         :return: exchange chosen letters from holder
