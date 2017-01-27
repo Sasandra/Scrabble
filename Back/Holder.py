@@ -56,7 +56,6 @@ class Holder:
         for i in self.holder:
             left = self.holder[i][0].left
             top = self.holder[i][0].top
-
             address = 'Images\\letters\\' + self.change_name(str(self.holder[i][1])) + '.png'
             letter = pygame.image.load(address)
             letter = pygame.transform.scale(letter, (55, 55))
@@ -137,8 +136,6 @@ class Holder:
 
         self.holder[max_index] = (pygame.Rect(start_coor, 120, 55, 55), letter)
         self.player.return_letter_on_holder(letter)
-        print(self.holder)
-        print(list(self.holder.keys()))
 
     def swap_letters(self, positions):
         """ swap letters on holder"""

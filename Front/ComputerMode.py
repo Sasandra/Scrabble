@@ -3,6 +3,7 @@
 
 from collections import namedtuple
 import ctypes
+import copy
 import time
 import pygame
 from Back import Holder
@@ -34,6 +35,7 @@ class ComputerMode:
         self.temp_clicked_board_positions = list()
         self.current_letter = ''
         self.positions_to_swap_on_holder = list()
+        self.amount_moved_letters = 0
 
         self.set_background()
         self.set_board()
@@ -118,7 +120,7 @@ class ComputerMode:
 
         self.you.return_letter_on_holder(self.game.get_letter_from_pos(pos))
         self.holder.draw_holder()
-        ## dodaj usuwanie literki ze słowa
+        self.amount_moved_letters -= 1
         self.game.remove_letter_from_word(self.game.get_letter_from_pos(pos))
         pygame.display.flip()
 
@@ -189,7 +191,6 @@ class ComputerMode:
         word_x_2_label = myfont.render("2 * słowo", 1, (255, 255, 255))
         self.screen.blit(word_x_2_label, (925, 565))
 
-
         word_x_3 = pygame.image.load('Images\\empty_w3.png')
         word_x_3 = pygame.transform.scale(word_x_3, (40, 40))
         self.screen.blit(word_x_3, (880, 605))
@@ -220,6 +221,25 @@ class ComputerMode:
             score = myfont.render(str(self.computer.score), 1, (255, 255, 255))
             self.screen.blit(score, (100, 80))
 
+    def remove_word(self):
+        """if validation failed or pass button was clicked unwanted letters must be removed"""
+        temp_list = copy.deepcopy(self.temp_clicked_board_positions)
+
+        for i in temp_list:
+            temp_rect = self.game.board.fields[i]
+            self.clear_field(temp_rect, i)
+            self.remove_letter_fromm_board(i)
+        self.game.word = list()
+
+    def clear_field(self, rect, i):
+        """function to clean filed on board after putting of letter"""
+        left = rect.left
+        top = rect.top
+        address = self.game.create_file_name(i)
+        letter = pygame.image.load(address)
+        letter = pygame.transform.scale(letter, (38, 38))
+        self.screen.blit(letter, (left, top))
+
     def start(self):
         """ Main loop of computer mode"""
         while self.game_state:
@@ -231,12 +251,12 @@ class ComputerMode:
                 #     if self.screen.get_flags() & pygame.FULLSCREEN:
                 #         pygame.display.set_mode((1300, 670))
                 #         pygame.display.flip()
-                if event.type == pygame.MOUSEBUTTONDOWN and self.game.current_playing_user == self.you:
-                    if event.button == 1:
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1 and self.game.current_playing_user == self.you:
                         for i in range(15):
                             for j in range(15):
                                 if self.game.board.fields[(i, j)].collidepoint(pygame.mouse.get_pos()) and (
-                                i, j) not in self.temp_clicked_board_positions and self.current_letter != '':
+                                        i, j) not in self.temp_clicked_board_positions and self.current_letter != '':
                                     left = self.game.board.fields[(i, j)].left
                                     top = self.game.board.fields[(i, j)].top
                                     address = 'Images\\letters\\' + self.holder.change_name(
@@ -245,6 +265,7 @@ class ComputerMode:
                                     letter = pygame.transform.scale(letter, (38, 38))
                                     self.screen.blit(letter, (left, top))
                                     self.temp_clicked_board_positions.append((i, j))
+                                    self.amount_moved_letters += 1
                                     self.holder.remove_letter(self.current_letter)
                                     self.holder.draw_holder()
                                     pygame.display.flip()
@@ -265,38 +286,37 @@ class ComputerMode:
                             self.reset_screen()
                             pygame.display.update()
 
-                        if self.quit_game_button.collidepoint(pygame.mouse.get_pos()):
-                            self.game_state = self.do_want_end()
-
                         if self.pass_button.collidepoint(pygame.mouse.get_pos()):
                             self.game_state = self.game.pass_button_press()
                             self.set_current_palyer_name()
+                            self.remove_word()
                             pygame.display.update()
 
                         if self.end_move_button.collidepoint(pygame.mouse.get_pos()):
-                            self.game.end_move()
+                            if self.game.end_move():
+                                self.set_current_palyer_name()
+                                self.display_score()
+                                self.clicked_board_positions = self.temp_clicked_board_positions
+                            else:
+                                self.remove_word()
+
                             self.holder.draw_holder()
-                            self.display_score()
                             pygame.display.flip()
-                            print('he?')
-                            self.set_current_palyer_name()
                             pygame.display.update()
 
-                    if event.button == 3:
+                    elif event.button == 1:
+                        if self.quit_game_button.collidepoint(pygame.mouse.get_pos()):
+                            self.game_state = self.do_want_end()
+
+                    elif event.button == 3 and self.game.current_playing_user == self.you:
                         for i in self.temp_clicked_board_positions:
-                            print(self.holder.holder)
                             temp_rect = self.game.board.fields[i]
                             if temp_rect.collidepoint(pygame.mouse.get_pos()):
-                                left = temp_rect.left
-                                top = temp_rect.top
-                                address = self.game.create_file_name(i)
-                                letter = pygame.image.load(address)
-                                letter = pygame.transform.scale(letter, (38, 38))
-                                self.screen.blit(letter, (left, top))
-                                # usun z temporary, word, zwróc na holder
+                                self.clear_field(temp_rect, i)
                                 self.remove_letter_fromm_board(i)
                                 pygame.display.flip()
 
+                    elif event.button == 3:
                         for i in self.holder.holder:
                             if self.holder.holder[i][0].collidepoint(pygame.mouse.get_pos()):
                                 self.positions_to_swap_on_holder.append((i, self.holder.holder[i][1]))

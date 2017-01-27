@@ -209,7 +209,6 @@ class Game:
     def end_move(self):
         """ tu sum up one single move """
         if not self.validation():
-            print('nie poszła walidacja')
             return False
         else:
             result = ''
@@ -219,7 +218,6 @@ class Game:
             self.put_word_on_board()
 
             self.current_playing_user.end_move_and_reset(self.calculate_score())
-            print(self.current_playing_user.score)
             self.current_playing_user = next(self.players)
             self.word = list()
 
