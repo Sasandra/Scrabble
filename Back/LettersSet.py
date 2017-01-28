@@ -9,8 +9,8 @@ class Letters:
     """ Class responsbile for storage and operations connected to letters tiles. """
 
     def __init__(self):
-        self.__letters = dict()
-        self.__number_of_letters = 100
+        self.letters = dict()
+        self.number_of_letters = 100
         try:
             with open('Back\\letters.txt', 'r', encoding='utf-8') as reader:
                 data = reader.read()
@@ -18,48 +18,48 @@ class Letters:
                 data = data.split('@')
                 for line in data:
                     line = line.rstrip().split(':')
-                    self.__letters.update({line[0]: NamedLetter(int(line[1]), int(line[2]))})
+                    self.letters.update({line[0]: NamedLetter(int(line[1]), int(line[2]))})
 
         except IOError:
             print('Plik z literami nie został znaleziony.')
 
     def __iter__(self):
-        return iter(self.__letters)
+        return iter(self.letters)
 
     def __hash__(self):
         result = ''
-        for word in self.__letters:
-            result = result + word + self.__letters[word]
+        for word in self.letters:
+            result = result + word + self.letters[word]
         return hash(result)
 
     def __getitem__(self, char):
-        if char in self.__letters:
-            return self.__letters[char]
+        if char in self.letters:
+            return self.letters[char]
 
     def __setitem__(self, char, value):
-        self.__letters[char] = value
+        self.letters[char] = value
 
     def get_amount(self, char):
         """
         :param char: Letter which amount we want to get.
         :return: Amount of given letter.
         """
-        return int(self.__letters[char].amount)
+        return int(self.letters[char].amount)
 
     def get_points(self, char):
         """
         :param char: Letter which amount we want to get.
         :return: Points of given letter.
         """
-        return int(self.__letters[char].points)
+        return int(self.letters[char].points)
 
     def dekrement_amount(self, char):
         """
         :param char: Letter which amount we want to decrease.
         """
         if self.get_amount(char) > 0:
-            self.__letters[char] = NamedLetter(self.get_amount(char) - 1, self.get_points(char))
-            self.__number_of_letters -= 1
+            self.letters[char] = NamedLetter(self.get_amount(char) - 1, self.get_points(char))
+            self.number_of_letters -= 1
 
     def random_letters(self, amount):
         """
@@ -68,11 +68,11 @@ class Letters:
         """
         letters_to_return = list()
         while len(letters_to_return) < amount:
-            letter = random.choice(list(self.__letters.keys()))
+            letter = random.choice(list(self.letters.keys()))
             if self.get_amount(letter) > 0:
                 self.dekrement_amount(letter)
                 letters_to_return.append(letter)
-            if self.__number_of_letters == 0:
+            if self.number_of_letters == 0:
                 break
 
         return letters_to_return
@@ -81,9 +81,9 @@ class Letters:
         """
         :param char: Letter which amount we want to increase.
         """
-        if self.__number_of_letters < 101:
-            self.__letters[char] = NamedLetter(self.get_amount(char) + 1, self.get_points(char))
-            self.__number_of_letters += 1
+        if self.number_of_letters < 101:
+            self.letters[char] = NamedLetter(self.get_amount(char) + 1, self.get_points(char))
+            self.number_of_letters += 1
 
     def change_letters(self, letters):
         """

@@ -42,7 +42,14 @@ class Words:
         :param word:
         :return: True when given word is allowed or False when it isn't
         """
-        return word in self.words
+        if isinstance(word, str):
+            return word in self.words, None
+
+        for i in word:
+            if i in self.words:
+                return True, i
+        return False, None
+
 
     @staticmethod
     def __check_letters_in_word(letters, word):

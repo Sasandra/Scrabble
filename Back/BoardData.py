@@ -44,7 +44,7 @@ class Board:
         rectangles = list()
         counter = 0
         try:
-            with open('Back\\board_grid', 'r') as reader:
+            with open('board_grid', 'r') as reader:
                 data = reader.readlines()
                 for i in data:
                     if '#' in i:

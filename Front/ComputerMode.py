@@ -246,6 +246,35 @@ class ComputerMode:
         letter = pygame.transform.scale(letter, (38, 38))
         self.screen.blit(letter, (left, top))
 
+    def reset_textbox(self):
+        """ reset text box for letter which represent blank"""
+        textbox = pygame.image.load('Images\\holder.png')
+        textbox = pygame.transform.scale(textbox, (50, 50))
+        self.screen.blit(textbox, (880, 300))
+
+    def hide_textbox(self):
+        """ hide textbox after getting letter for blank"""
+        textbox = pygame.image.load('Images\\game_background.png')
+        textbox = pygame.transform.scale(textbox, (50, 50))
+        self.screen.blit(textbox, (880, 300))
+
+    def set_textbox_for_blank(self):
+        """ if blank is on board, plater must tell what letter it is"""
+        self.reset_textbox()
+        pygame.display.update()
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if self.game.letter_under_blank == "":
+                        self.game.letter_under_blank = event.unicode
+                    else:
+                        self.game.second_letter_under_blank = event.unicode
+                    self.show_text(str(event.unicode), 40, (893, 305))
+                    pygame.display.update()
+                    time.sleep(0.05)
+                    return
+
     def start(self):
         """ Main loop of computer mode"""
         while self.game_state:
@@ -270,6 +299,11 @@ class ComputerMode:
                                     letter = pygame.image.load(address)
                                     letter = pygame.transform.scale(letter, (38, 38))
                                     self.screen.blit(letter, (left, top))
+
+                                    if self.current_letter == '?':
+                                        self.set_textbox_for_blank()
+                                        self.hide_textbox()
+
                                     self.temp_clicked_board_positions.append((i, j))
                                     self.amount_moved_letters += 1
                                     self.holder.remove_letter(self.current_letter)
@@ -303,9 +337,10 @@ class ComputerMode:
                                 self.set_current_palyer_name()
                                 self.display_score()
                                 self.clicked_board_positions = self.temp_clicked_board_positions
+                                print(self.game.board.board)
                             else:
                                 self.remove_word()
-
+                            self.game.letter_under_blank = ''
                             self.holder.draw_holder()
                             pygame.display.flip()
                             pygame.display.update()

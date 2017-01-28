@@ -18,6 +18,8 @@ class Game:
         self.board = board
         self.letter_set = letters
         self.current_playing_user = next(self.players)  # user which is actually playing
+        self.letter_under_blank = ''
+        self.allowed_word = ''
 
     @staticmethod
     def tuple_diff(tuple1, tuple2):
@@ -27,7 +29,6 @@ class Game:
     @staticmethod
     def is_verticall(tuples):
         """ check if letters was placed vertically"""
-        print('v')
         for i in tuples:
             if i[0] != 0:
                 return False
@@ -36,7 +37,6 @@ class Game:
     @staticmethod
     def is_horizontal(tuples):
         """check if letters was placed horizontally """
-        print('h')
         for i in tuples:
             if i[1] != 0:
                 return False
@@ -60,16 +60,20 @@ class Game:
 
     def complete_word(self):
         """ read letters from board which we use to create new word"""
-        for i in range(len(self.word) - 1):
-            diff = self.tuple_diff(self.word[i].position, self.word[i + 1].position)
+        temp_positions = list()
+        print(self.word)
+        for i in range(1, len(self.word)):
+            print('i', i, self.word[i].letter)
+            diff = self.tuple_diff(self.word[i - 1].position, self.word[i].position)
             if diff[0] == 2 or diff[1] == 2:
-                position = self.find_missing_position(self.word[i].position, self.word[i + 1].position)
+                position = self.find_missing_position(self.word[i - 1].position, self.word[i].position)
                 letter = self.board.get_letter_from_position(position)
-                if letter is None:
-                    continue
-                else:
-                    self.word.append(MovingLetter(letter, position))
-                    self.word = sorted(self.word, key=lambda word: word.position)
+                print('complete word', letter, position)
+                if letter is not None:
+                    temp_positions.append(MovingLetter(letter, position))
+
+        self.word += temp_positions
+        self.word = sorted(self.word, key=lambda word: word.position)
 
     def chcek_if_center(self):
         """ first word must go through (7,7) position, function chcec if it is true"""
@@ -78,6 +82,34 @@ class Game:
                 return True
 
         return False
+
+    def create_list_of_words(self, word):
+        """ if letter on blank may be special character eg. a-ą function will create list with all posibble words np (ja, ją)"""
+        result = list()
+        choose = {
+            'a': "aą",
+            'c': "cć",
+            'e': "eę",
+            'l': "lł",
+            'n': "nń",
+            'o': "oó",
+            's': "sś",
+            'z': "zżź"
+        }
+        posibble_letters = choose.get(self.letter_under_blank, self.letter_under_blank)
+        for i in posibble_letters:
+            result.append(word.replace('?', i, 1))
+
+        if word.count('?') == 2:
+            temp_result = list()
+            posibble_letters = choose.get(self.second_letter_under_blank, self.second_letter_under_blank)
+            for i in result:
+                for j in posibble_letters:
+                    temp_result.append(i.replace('?', j))
+
+            result += temp_result
+
+        return result
 
     def validation(self):
         """ chceck if placed letters create allowed word and if letters are in one line"""
@@ -91,23 +123,33 @@ class Game:
             for letter in self.word:
                 word += letter.letter
 
+            if '?' in word:
+                word = self.create_list_of_words(word)
+
             if not self.chcek_if_center():
                 return False
-            if not self.words_list.find_if_word_in_list(word):
+            if not self.words_list.find_if_word_in_list(word)[0]:
                 return False
+
+            self.allowed_word = self.words_list.find_if_word_in_list(word)[1]
 
         else:  # next moves
             if len(self.word) > 2:  #
                 self.complete_word()
 
-            print(self.word)
-
             word = ''
             for letter in self.word:
                 word += letter.letter
 
-            if not self.words_list.find_if_word_in_list(word):  # word not in dictionary but it can be eg. prze-jadę
+            print('v', word)
+
+            if '?' in word:
+                word = self.create_list_of_words(word)
+
+            if not self.words_list.find_if_word_in_list(word)[0]:  # word not in dictionary but it can be eg. prze-jadę
                 flag = False
+
+            self.allowed_word = self.words_list.find_if_word_in_list(word)[1]
 
             if len(self.word) > 2:
                 if not self.positions_validation():
@@ -117,9 +159,12 @@ class Game:
             if len(collisions) == 0:  # only first word can be without collisions
                 return False
 
-            if False in collisions:  # if some collision does not create a allowed word
+            if False not in collisions:  # if some collision does not create a allowed word
+                return True
+            else:
                 return False
 
+        print('flag', flag)
         return flag
 
     @staticmethod
@@ -134,22 +179,78 @@ class Game:
         """ check if collision create avalible word"""
         diff = tuple(self.tuple_diff(position, from_where.position))
         next_letter = self.board.get_letter_from_position(position)
-        word = from_where.letter
+        word = ''
+        direction = ''
+
         if diff[0] == 1:  # rows
-            while next_letter != None:
+            if from_where.position[0] > position[0]:
+                adder = -1
+                direction = 'top'
+            else:
+                adder = 1
+                direction = 'down'
+
+            while next_letter is not None:
                 word += next_letter
-                position = (position[0] + 1, position[1])
-                next_letter = self.board.get_letter_from_position(position)
-        elif diff[1] == 1:  # columns
-            while next_letter != None:
-                word += next_letter
-                position = (position[0], position[1] + 1)
+                position = (position[0] + adder, position[1])
                 next_letter = self.board.get_letter_from_position(position)
 
-        return self.words_list.find_if_word_in_used_list(word)
+        elif diff[1] == 1:  # columns
+            if from_where.position[1] > position[1]:
+                adder = -1
+                direction = 'left'
+            else:
+                adder = 1
+                direction = 'right'
+
+            while next_letter is not None:
+                word += next_letter
+                position = (position[0], position[1] + adder)
+                next_letter = self.board.get_letter_from_position(position)
+
+        if adder == -1:
+            word = word[::-1]
+
+        return word, direction
+
+    def check_if_collision_is_correct(self, start_pos, recv_word, direction):
+        """ check if found collision create a allowed word"""
+        print('direction', direction)
+        switcher = {
+            'left': (0, 1),
+            'right': (0, -1),
+            'top': (1, 0),
+            'down': (-1, 0)
+        }
+
+        adder = switcher.get(direction)
+        new_word = start_pos.letter
+        position = (start_pos.position[0] + adder[0], start_pos.position[1] + adder[1])
+        next_letter = self.board.get_letter_from_position(position)
+
+        while next_letter is not None:
+            new_word += next_letter
+            position = (position[0] + adder[0], position[1] + adder[1])
+            next_letter = self.board.get_letter_from_position(position)
+
+        if direction in ('right', 'down'):
+            new_word = new_word[::-1]
+            recv_word = new_word + recv_word
+        else:
+            recv_word += new_word
+
+        print('b', new_word)
+        print(recv_word)
+
+        if self.words_list.find_if_word_in_used_list(recv_word):
+            return True
+        elif self.words_list.find_if_word_in_list(recv_word)[0]:
+            return True
+        else:
+            return False
 
     def collision_validation(self):
-        """ chceck if new word create some collision"""
+        """ check if new word create some collision"""
         positions = [k.position for k in self.word]
         collisions = []
         for i in self.word:
@@ -160,20 +261,23 @@ class Game:
             neighbours = [top, down, left, right]
 
             for j in neighbours:
-                if self.check_range(j) and self.board.get_letter_from_position(j) != None:
+                if self.check_range(j) and self.board.get_letter_from_position(j) is not None:
                     if j in positions:
                         continue
                     else:
-                        print(self.find_word_to_collision(j, i))
-                        collisions.append(self.find_word_to_collision(j, i))
-
+                        temp = self.find_word_to_collision(j, i)
+                        collisions.append(self.check_if_collision_is_correct(i, temp[0], temp[1]))
+        print('c', collisions)
         return collisions
 
     def put_word_on_board(self):
         """ mark on board letter, remove used letters form set"""
         for i in self.word:
-            self.board.set_letter_on_position(i.position, i.letter)
-            self.letter_set.dekrement_amount(i.letter)
+            if i.letter == '?':
+                index = self.word.index(i)
+                self.board.set_letter_on_position(i.position, self.allowed_word[index])
+            else:
+                self.board.set_letter_on_position(i.position, i.letter)
 
     def change_player(self):
         """ chcange current player"""
@@ -220,6 +324,7 @@ class Game:
             self.current_playing_user.end_move_and_reset(self.calculate_score())
             self.current_playing_user = next(self.players)
             self.word = list()
+            self.letter_under_blank = ''
 
             return True
 
@@ -279,41 +384,46 @@ class Game:
             if i.position == pos:
                 return i.letter
 
-# player = (PlayerData.Player('Ola'), PlayerData.Player('Adam'))
+#
+# l = LettersSet.Letters()
+# player = (PlayerData.Player('Ola', l), PlayerData.Player('Adam', l))
 # bord = BoardData.Board()
-# bord.set_letter_on_position((3, 1), 'k')
-# #bord.set_letter_on_position((1, 1), 'r')
-# #bord.set_letter_on_position((1, 2), 'o')
-# #bord.set_letter_on_position((1, 3), 'b')
-# #bord.set_letter_on_position((1, 4), 'a')
-# #bord.set_letter_on_position((1, 5), 'k')
-# #bord.set_letter_on_position((6, 2), 'b')
-# #bord.set_letter_on_position((7, 2), 'a')
-# #bord.set_letter_on_position((8, 2), 'l')
+# bord.set_letter_on_position((1, 5), 'p')
+# bord.set_letter_on_position((2, 5), 'r')
+# bord.set_letter_on_position((3, 5), 'ó')
+# bord.set_letter_on_position((4, 5), 'b')
+# bord.set_letter_on_position((5, 5), 'u')
+# bord.set_letter_on_position((6, 5), 'j')
+# bord.set_letter_on_position((7, 5), 'e')
+# # bord.set_letter_on_position((8, 5), 'e')
+# # bord.set_letter_on_position((8, 8), 'm')
+# # bord.set_letter_on_position((8, 9), 'y')
 #
 # lista = WordsList.Words()
-# lista.add_used_word('robak')
-# lista.add_used_word('bal')
+# lista.add_used_word('prze')
+# # lista.add_used_word('bal')
 # word = list()
-# a = MovingLetter('t', (0, 1))
-# # b = MovingLetter('r', (1, 1))
-# c = MovingLetter('a', (2, 1))
-# d = MovingLetter('t', (4, 1))
-# e = MovingLetter('o', (5, 1))
-# f = MovingLetter('r', (6, 1))
-# word.append(a)
-# # word.append(b)
+# #a = MovingLetter('o', (1, 6))
+# #b = MovingLetter('r', (1, 7))
+# c = MovingLetter('y', (4, 6))
+# d = MovingLetter('ę', (4, 7))
+# e = MovingLetter('ż', (4, 8))
+# #f = MovingLetter('a', (3, 8))
+# #g = MovingLetter('y', (3, 10))
+# #word.append(a)
+# #word.append(b)
 # word.append(c)
 # word.append(d)
 # word.append(e)
-# word.append(f)
+# #word.append(f)
+# #word.append(g)
 # # print(sorted(word, key=lambda word: word.position))
 # for i in word:
 #     bord.set_letter_on_position(i.position, i.letter)
 #
 # g = Game(words_list=lista, board=bord, players=player)
 # g.word = word
-# print(g.validation())
+# print('g', g.validation())
 #
 # for i in range(15):
 #     for j in range(15):
@@ -321,4 +431,4 @@ class Game:
 #             print('_', end=' ')
 #         else:
 #             print(bord.board[i, j], end=' ')
-#     ol()
+#     print()
