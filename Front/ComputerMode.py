@@ -79,11 +79,11 @@ class ComputerMode:
         self.screen = pygame.display.get_surface()
         self.screen.blit(background, (0, 0))
 
-        self.show_text(self.computer.name, 30, (20, 50))
-        self.show_text('Wynik:', 30, (20, 80))
+        self.show_text(self.computer.name, 30, (20, 50), (255, 255, 255), "Cinnamon Cake")
+        self.show_text('Wynik:', 30, (20, 80), (255, 255, 255), "Cinnamon Cake")
 
-        self.show_text(self.you.name, 30, (20, 120))
-        self.show_text('Wynik:', 30, (20, 150))
+        self.show_text(self.you.name, 30, (20, 120), (255, 255, 255), "Cinnamon Cake")
+        self.show_text('Wynik:', 30, (20, 150), (255, 255, 255), "Cinnamon Cake")
 
         self.set_buttons()
 
@@ -98,15 +98,15 @@ class ComputerMode:
         """
         :return: display on screen players' score
         """
-        self.show_text(str(self.computer.score), 30, (100, 80))
-        self.show_text(str(self.you.score), 30, (100, 150))
+        self.show_text(str(self.computer.score), 30, (100, 80), (255, 255, 255), "Cinnamon Cake")
+        self.show_text(str(self.you.score), 30, (100, 150), (255, 255, 255), "Cinnamon Cake")
 
-    def show_text(self, text, size, coor):
+    def show_text(self, text, size, coor, color, style):
         """Show given text on screen"""
         pygame.font.init()
-        myfont = pygame.font.SysFont("Cinnamon Cake", size)
+        myfont = pygame.font.SysFont(style, size)
 
-        textsurface = myfont.render(text, False, (255, 255, 255))
+        textsurface = myfont.render(text, False, color)
         self.screen.blit(textsurface, coor)
 
     def reset_screen(self):
@@ -246,37 +246,43 @@ class ComputerMode:
         letter = pygame.transform.scale(letter, (38, 38))
         self.screen.blit(letter, (left, top))
 
-    def reset_textbox(self):
-        """ reset text box for letter which represent blank"""
-        textbox = pygame.image.load('Images\\holder.png')
-        textbox = pygame.transform.scale(textbox, (50, 50))
-        self.screen.blit(textbox, (880, 300))
+    def reset_text(self, pos):
+        """ draw blank on board with letter under it"""
+        textbox = pygame.image.load('Images\\letters\\blank.png')
+        left = self.game.board.fields[pos].left
+        top = self.game.board.fields[pos].top
+        textbox = pygame.transform.scale(textbox, (38, 38))
+        self.screen.blit(textbox, (left, top))
+        return [left, top]
 
-    def hide_textbox(self):
-        """ hide textbox after getting letter for blank"""
-        textbox = pygame.image.load('Images\\game_background.png')
-        textbox = pygame.transform.scale(textbox, (50, 50))
-        self.screen.blit(textbox, (880, 300))
-
-    def set_textbox_for_blank(self):
+    def set_text_for_blank(self, pos):
         """ if blank is on board, plater must tell what letter it is"""
-        self.reset_textbox()
+        coor = self.reset_text(pos)
+        coor = coor[0] + 8, coor[1] - 2
         pygame.display.update()
 
-        while True:
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if self.game.letter_under_blank == "":
-                        self.game.letter_under_blank = event.unicode
-                    else:
-                        self.game.second_letter_under_blank = event.unicode
-                    self.show_text(str(event.unicode), 40, (893, 305))
-                    pygame.display.update()
-                    time.sleep(0.05)
-                    return
+        letter = self.game.board.get_letter_from_position(pos)
+
+        if letter is not None:
+            self.show_text(str(letter).upper(), 30, coor, (0, 84, 45), "Times New Roman")
+            pygame.display.update()
+
+        else:
+            while True:
+                for event in pygame.event.get():
+                    if event.type == pygame.KEYDOWN:
+                        if self.game.letter_under_blank == "":
+                            self.game.letter_under_blank = event.unicode
+                        else:
+                            self.game.second_letter_under_blank = event.unicode
+                        self.show_text(str(event.unicode).upper(), 30, coor, (0, 84, 45), "Times New Roman")
+                        pygame.display.update()
+                        return
 
     def start(self):
         """ Main loop of computer mode"""
+        bank_pos = None
+        second_blank_pos = None
         while self.game_state:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -301,8 +307,11 @@ class ComputerMode:
                                     self.screen.blit(letter, (left, top))
 
                                     if self.current_letter == '?':
-                                        self.set_textbox_for_blank()
-                                        self.hide_textbox()
+                                        if bank_pos is None:
+                                            blank_pos = (i, j)
+                                        else:
+                                            second_blank_pos = (i, j)
+                                        self.set_text_for_blank((i, j))
 
                                     self.temp_clicked_board_positions.append((i, j))
                                     self.amount_moved_letters += 1
@@ -338,6 +347,10 @@ class ComputerMode:
                                 self.display_score()
                                 self.clicked_board_positions = self.temp_clicked_board_positions
                                 print(self.game.board.board)
+                                if blank_pos is not None:
+                                    self.set_text_for_blank(blank_pos)
+                                if second_blank_pos is not None:
+                                    self.set_text_for_blank(second_blank_pos)
                             else:
                                 self.remove_word()
                             self.game.letter_under_blank = ''
