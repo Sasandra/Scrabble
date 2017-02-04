@@ -22,7 +22,9 @@ class HelloMenu:
         pygame.display.flip()
 
     def clear(self):
-        """Clear the screen, it is needed to show properly entered data"""
+        """
+        Clear the screen, it is needed to show properly entered data
+        """
         tittle = pygame.image.load('Images\\tittle.png')
         tittle = pygame.transform.scale(tittle, (634, 148))
         self.screen.blit(tittle, (90, 30))
@@ -35,7 +37,10 @@ class HelloMenu:
         self.screen.blit(ok_button, (350, 440))
 
     def show_text(self, text):
-        """Show given text on screen"""
+        """
+        :param text: text to show on a screen
+        :return: text on screen
+        """
         pygame.font.init()
         myfont = pygame.font.SysFont("Cinnamon Cake", 40)
 
@@ -43,13 +48,17 @@ class HelloMenu:
         self.screen.blit(textsurface, (235, 300))
 
     def update(self):
-        """Update textbox and screen"""
+        """
+        Update and clear textbox
+        """
         self.clear()
         self.box.update(self.screen)
         pygame.display.flip()
 
     def start(self):
-        """Main loop of HelloMenu"""
+        """
+        Main loop of HelloMenu
+        """
 
         while self.game_state:
             for event in pygame.event.get():

@@ -1,9 +1,9 @@
-""" Representation of one player"""
+""" Representation of player"""
 import copy
 
 
 class Player:
-    """Each player will have his/her own instance of this class"""
+    """Class to represent player data"""
 
     def __init__(self, name, letters_set_object):
         self.name = name
@@ -16,7 +16,7 @@ class Player:
     def remove_double_clicked(self, letters):
         """
         :param letters: chosen letters to exchange
-        :return: letters for exchange with removed these double clicked
+        :return: list of letters without double clicked
         """
         holder_copy = copy.deepcopy(self.holder)
         letters_to_return = list()
@@ -43,10 +43,12 @@ class Player:
             for i in exchanged:
                 self.holder.append(i)
 
-            self.if_change_letters = True
+            self.if_change_letters = False
 
     def complete_holder(self):
-        """ Random letter to remove lack of letters on holder"""
+        """
+        :return: fill holder with new random letters
+        """
         amount_of_lack_letters = 7 - len(self.holder)
         letters = self.letters_object.random_letters(amount_of_lack_letters)
         for i in letters:
@@ -59,29 +61,46 @@ class Player:
         return self.name
 
     def update_score(self, new_scores):
-        """ add new_scores to player's score """
+        """
+        :param new_scores:
+        :return: add new_scores to player's score
+        """
         self.score += new_scores
 
     def increment_pass(self):
-        """ increment amount_of pass every time player doesn't create a word"""
+        """
+        :return: increment amount_of pass every time when player doesn't create a word
+        """
         self.amount_of_pass += 1
 
     def end_move_and_reset(self, score):
-        """ end move function: add score, random new letters, reset flags"""
+        """
+        :param score: score for created word
+        :return: end move function: add score, fill holder, reset flags
+        """
         self.amount_of_pass = 0
         self.if_change_letters = False
         self.update_score(score)
         self.complete_holder()
 
     def remove_letter_from_holder(self, letter):
-        """ remove given letter from holder"""
+        """
+        :param letter: letter to remove from holder
+        :return: holder without given letter
+        """
         if letter in self.holder:
             self.holder.remove(letter)
 
     def return_letter_on_holder(self, letter):
-        """ return letter from board to holder"""
+        """
+        :param letter: letter to put on holder
+        :return: update holder with given letter
+        """
         self.holder.append(letter)
 
     def swap_letter(self, letters):
-        """update swaped holder"""
+        """
+        :param letters: list of letter which was shifted
+        :return: updated holder
+        """
         self.holder = letters

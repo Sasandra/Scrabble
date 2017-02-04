@@ -14,7 +14,9 @@ class TextBox:
         self.rect = rect
 
     def char_add(self, event):
-        """ modify string list based on event.key"""
+        """
+        modify string list based on event.key
+        """
         if event.key == pygame.K_BACKSPACE:
             if self.str_list:
                 self.str_list.pop()
@@ -33,7 +35,9 @@ class TextBox:
         return ''.join(self.str_list)
 
     def update(self, scr):
-        """show entered word on screen"""
+        """
+        show entered word on screen
+        """
         temp_word = ''.join(self.str_list)
         label = ''
         if len(temp_word) > 0:

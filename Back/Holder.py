@@ -17,7 +17,7 @@ class Holder:
 
     def read_holder(self):
         """
-        :return: Generate holder's cooardinates on board
+        :return: Generate holder's coordinates on board
         """
         self.holder = collections.OrderedDict()
         letters = self.player.holder
@@ -29,8 +29,9 @@ class Holder:
     @staticmethod
     def change_name(letter):
         """
-        :param letter: letter which will be change in correct form for filename
+        :param letter: letter to change in correct form for filename
         :return: letter if letter isn't polish letter or suitable name for this letter if is polish
+                e.g ą->a1  b->b
         """
         switcher = {
             'ą': "a1",
@@ -48,7 +49,7 @@ class Holder:
 
     def draw_holder(self):
         """
-        :return: read for each holder's letter image and show it on a screen
+        :return: for each holder's letter read image and show it on a screen
         """
         holder = pygame.image.load('Images\\holder.png')
         self.screen.blit(holder, (869, 109))
@@ -62,23 +63,32 @@ class Holder:
             self.screen.blit(letter, (left, top))
 
     def active_letters(self, index):
-        """ display rectangle around chosen letter"""
+        """
+        :param index: index of letter to activate
+        :return: active letter -> red backlight -> red rectangle
+        """
         pygame.draw.rect(self.screen, (255, 0, 0), self.holder[index][0], 2)
         pygame.display.flip()
 
-    def disactive_letters(self, index):
-        """ display rectangle around chosen letter to disactive"""
+    def disabled_letters(self, index):
+        """
+        :param index: index of letter to deactivate
+        :return: disabled letter -> green backlight -> green rectangle
+        """
         pygame.draw.rect(self.screen, (0, 255, 0), self.holder[index][0], 2)
         pygame.display.flip()
 
-    def choose_letters(self, index):
-        """ display rectangle around chosen letters to swap on holder"""
+    def chosen_letters(self, index):
+        """
+        :param index: index: index of letter to swap
+        :return: chosen letter -> blue backlight -> blue rectangle
+        """
         pygame.draw.rect(self.screen, (0, 162, 232), self.holder[index][0], 2)
         pygame.display.flip()
 
     def exchange_holder(self):
         """
-        :return: exchange chosen letters from holder
+        :return: holder with exchanged chosen letters
         """
         if self.player.if_change_letters:
             return
@@ -102,7 +112,7 @@ class Holder:
                                     self.active_letters(i)
                                     clicked_letters.append(self.holder[i][0])
                                 else:
-                                    self.disactive_letters(i)
+                                    self.disabled_letters(i)
                                     letter_to_change.remove(self.holder[i][1])
                                     clicked_letters.remove(self.holder[i][0])
                             elif self.end_exchange.collidepoint(pygame.mouse.get_pos()):
@@ -111,14 +121,19 @@ class Holder:
                                 exchange_button = pygame.transform.scale(exchange_button, (120, 40))
                                 self.screen.blit(exchange_button, (1020, 260))
                                 pygame.display.flip()
+
         if len(letter_to_change) == 0:
             return False
         else:
+            self.player.amount_of_pass = 0
             self.player.exchange_letter(letter_to_change)
             return True
 
-    def remove_letter(self, letter):
-        """ remove given letter form holder"""
+    def remove_from_holder(self, letter):
+        """
+        :param letter: letter to remove from holder
+        :return: holder without given letter
+        """
         for i in self.holder:
             if self.holder[i][1] == letter:
                 index = i
@@ -128,7 +143,10 @@ class Holder:
         self.player.remove_letter_from_holder(letter)
 
     def return_on_holder(self, letter):
-        """ return letter from board to holder"""
+        """
+        :param letter: letter to put on holder
+        :return: updated holder with new letter
+        """
         holder_keys = list(self.holder.keys())
 
         if holder_keys:
@@ -143,7 +161,10 @@ class Holder:
         self.player.return_letter_on_holder(letter)
 
     def swap_letters(self, positions):
-        """ swap letters on holder"""
+        """
+        :param positions: positions' pair of letters to swap on holder
+        :return: updated holder with shifted letters
+        """
         letter_1 = positions[0]
         letter_2 = positions[1]
 

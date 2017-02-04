@@ -4,7 +4,7 @@ import pygame
 
 
 class MainMenu:
-    """Class resposible for main menu of game"""
+    """Class responsible for main menu of game"""
 
     def __init__(self):
 
@@ -12,21 +12,23 @@ class MainMenu:
         self.screen = pygame.display.set_mode((800, 600))
 
         self.computer_button = pygame.Rect(203, 213, 390, 79)
-        self.network_button = pygame.Rect(203, 308, 390, 79)
+        self.friends_button = pygame.Rect(203, 308, 390, 79)
         self.instruction_button = pygame.Rect(203, 400, 390, 75)
         self.exit_button = pygame.Rect(203, 488, 390, 79)
 
         self.set_menu()
 
         # pygame.draw.rect(self.screen, (0, 255, 0), self.computer_button, 1)
-        # pygame.draw.rect(self.screen, (0, 255, 0), self.network_button, 1)
+        # pygame.draw.rect(self.screen, (0, 255, 0), self.friends_button, 1)
         # pygame.draw.rect(self.screen, (0, 255, 0), self.instruction_button, 1)
         # pygame.draw.rect(self.screen, (0, 255, 0), self.exit_button, 1)
 
         pygame.display.flip()
 
     def set_menu(self):
-        """ Set all buttons on screen"""
+        """
+        Set all buttons on screen
+        """
         menu_background = pygame.image.load('Images\\menu_background.png')
         self.screen = pygame.display.get_surface()
         self.screen.blit(menu_background, (0, 0))
@@ -39,9 +41,9 @@ class MainMenu:
         computer = pygame.transform.scale(computer, (423, 99))
         self.screen.blit(computer, (189, 200))
 
-        network = pygame.image.load('Images\\buttons\\network.png')
-        network = pygame.transform.scale(network, (423, 99))
-        self.screen.blit(network, (189, 295))
+        friends = pygame.image.load('Images\\buttons\\friends.png')
+        friends = pygame.transform.scale(friends, (423, 99))
+        self.screen.blit(friends, (189, 295))
 
         instruction = pygame.image.load('Images\\buttons\\instruction.png')
         instruction = pygame.transform.scale(instruction, (423, 99))
@@ -57,7 +59,7 @@ class MainMenu:
     def button_on_click(name):
         """
         :param name: button's name to read clicked version
-        :return: read image of clicked button
+        :return: read image of clicked button and show it
         """
         name = 'Images\\buttons\\' + name + '_click.png'
         button = pygame.image.load(name)
@@ -76,7 +78,9 @@ class MainMenu:
         return button
 
     def start(self):
-        """ Main loop of the menu"""
+        """
+         Main loop of the menu
+         """
         while self.menu_state:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -94,10 +98,10 @@ class MainMenu:
                             pygame.display.flip()
                             webbrowser.open_new(r'Documentation\\instrukcja.pdf')
 
-                        elif self.network_button.collidepoint(pygame.mouse.get_pos()):
-                            self.screen.blit(self.button_on_click('network'), (189, 295))
+                        elif self.friends_button.collidepoint(pygame.mouse.get_pos()):
+                            self.screen.blit(self.button_on_click('friends'), (189, 295))
                             pygame.display.flip()
-                            return 'network'
+                            return 'friends'
 
                         elif self.computer_button.collidepoint(pygame.mouse.get_pos()):
                             self.screen.blit(self.button_on_click('computer'), (189, 200))
@@ -114,8 +118,8 @@ class MainMenu:
                             self.screen.blit(self.button_out_click('instruction'), (189, 385))
                             pygame.display.flip()
 
-                        elif self.network_button.collidepoint(pygame.mouse.get_pos()):
-                            self.screen.blit(self.button_out_click('network'), (189, 295))
+                        elif self.friends_button.collidepoint(pygame.mouse.get_pos()):
+                            self.screen.blit(self.button_out_click('friends'), (189, 295))
                             pygame.display.flip()
 
                         elif self.computer_button.collidepoint(pygame.mouse.get_pos()):

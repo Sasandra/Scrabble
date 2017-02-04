@@ -1,8 +1,13 @@
 """ Module responsible for storage data about board and method connected to actions on board."""
 import collections
+import os
 import pygame
 
 Premium = collections.namedtuple('premium', 'kind factor')
+
+THIS_DIR, THIS_FILENAME = os.path.split(__file__)
+BOARD_PREMIUMS = os.path.join(THIS_DIR, "premia.txt")
+BOARD_COORDINATES = os.path.join(THIS_DIR, "board_grid")
 
 
 class Board:
@@ -23,10 +28,10 @@ class Board:
 
     def read_premium(self):
         """
-        :return: read data about premiums from file
+        :return: read from file data about premiums
         """
         try:
-            with open('Back\\premia.txt', 'r', encoding='utf-8') as reader:
+            with open(BOARD_PREMIUMS, 'r', encoding='utf-8') as reader:
                 for i in reader:
                     i = i.rstrip().replace('(', '').replace(')', '')
                     pairs = i.split(':')
@@ -44,7 +49,7 @@ class Board:
         rectangles = list()
         counter = 0
         try:
-            with open('Back\\board_grid', 'r') as reader:
+            with open(BOARD_COORDINATES, 'r') as reader:
                 data = reader.readlines()
                 for i in data:
                     if '#' in i:
@@ -91,8 +96,8 @@ class Board:
 
     def get_premium_from_position(self, position):
         """
-        :param position: tuple - position from wich we want to take premium
-        :return: type Premium
+        :param position: tuple - position from which we want to take premium
+        :return: premium from given field
         """
         if not isinstance(position, tuple):
             position = tuple(position)

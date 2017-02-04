@@ -1,4 +1,4 @@
-""" Module for generall game functions"""
+""" Module for general game functions"""
 from collections import namedtuple
 from itertools import cycle
 
@@ -6,7 +6,7 @@ MovingLetter = namedtuple('MovingLetter', 'letter, position')
 
 
 class Game:
-    """Class resposible for game strategy"""
+    """Class responsible for game strategy"""
 
     def __init__(self, words_list=None, players=None, board=None, letters=None):
         self.players = cycle(players)
@@ -20,30 +20,45 @@ class Game:
         self.current_playing_user = next(self.players)  # user which is actually playing
         self.letter_under_blank = ''
         self.allowed_word = ''
+        self.created_words = list()
 
     @staticmethod
     def tuple_diff(tuple1, tuple2):
-        """ Calculate difference between two tuples' elements"""
+        """
+        :param tuple1:
+        :param tuple2:
+        :return: list(!) with calculated difference between two tuples' elements
+        """
         return [abs(i - j) for i, j in zip(tuple1, tuple2)]
 
     @staticmethod
-    def is_verticall(tuples):
-        """ check if letters was placed vertically"""
+    def is_vertically(tuples):
+        """
+        :param tuples: list of tuples' differences
+        :return: true if word is put vertically
+        """
         for i in tuples:
             if i[0] != 0:
                 return False
         return True
 
     @staticmethod
-    def is_horizontal(tuples):
-        """check if letters was placed horizontally """
+    def is_horizontally(tuples):
+        """
+        :param tuples: list of tuples' differences
+        :return: true if word is put horizontally
+        """
         for i in tuples:
             if i[1] != 0:
                 return False
         return True
 
     def find_missing_position(self, tuple1, tuple2):
-        """ return positiob between two given"""
+        """
+        :param tuple1: first position
+        :param tuple2: second position
+        :return: position between two given
+        """
         diff = self.tuple_diff(tuple1, tuple2)
         if diff[0] == 2:
             return (tuple1[0] + 1, tuple1[1])
@@ -51,32 +66,36 @@ class Game:
             return (tuple1[0], tuple1[1] + 1)
 
     def positions_validation(self):
-        """ check if letters are on one line vertically or horizontally"""
+        """
+        :return: True if letters are on one line vertically or horizontally
+        """
         positions_diff = list()
         for i in range(len(self.word) - 1):
             positions_diff.append(self.tuple_diff(self.word[i].position, self.word[i + 1].position))
 
-        return self.is_horizontal(positions_diff) or self.is_verticall(positions_diff)
+        return self.is_horizontally(positions_diff) or self.is_vertically(positions_diff)
 
     def complete_word(self):
-        """ read letters from board which we use to create new word"""
+        """
+        :return: word completed with one missing position
+        """
         temp_positions = list()
-        print(self.word)
         for i in range(1, len(self.word)):
-            print('i', i, self.word[i].letter)
             diff = self.tuple_diff(self.word[i - 1].position, self.word[i].position)
             if diff[0] == 2 or diff[1] == 2:
                 position = self.find_missing_position(self.word[i - 1].position, self.word[i].position)
                 letter = self.board.get_letter_from_position(position)
-                print('complete word', letter, position)
+
                 if letter is not None:
                     temp_positions.append(MovingLetter(letter, position))
 
         self.word += temp_positions
         self.word = sorted(self.word, key=lambda word: word.position)
 
-    def chcek_if_center(self):
-        """ first word must go through (7,7) position, function chcec if it is true"""
+    def check_if_center(self):
+        """
+        :return: First word must go through (7, 7). Return true if indeed it does.
+        """
         for i in self.word:
             if i.position == (7, 7):
                 return True
@@ -84,7 +103,10 @@ class Game:
         return False
 
     def create_list_of_words(self, word):
-        """ if letter on blank may be special character eg. a-ą function will create list with all posibble words np (ja, ją)"""
+        """
+        :param word: word with blank
+        :return: list of all possible words after replacing blank
+        """
         result = list()
         choose = {
             'a': "aą",
@@ -111,146 +133,351 @@ class Game:
 
         return result
 
+    def word_plane(self):
+        """
+        :return: 'h' if letter is placed horizontally and 'v' when it is placed vertically
+        """
+        positions_diff = list()
+        for i in range(len(self.word) - 1):
+            positions_diff.append(self.tuple_diff(self.word[i].position, self.word[i + 1].position))
+
+        if self.is_horizontally(positions_diff):
+            return 'v'
+        elif self.is_vertically(positions_diff):
+            return 'h'
+
+    def letter_positions(self):
+        """
+        :return: word's letters' positions
+        """
+        pos = list()
+        for i in self.word:
+            pos.append(i.position)
+
+        return pos
+
+    def further_suffixes(self, pos, adder):
+        """
+        :param pos: start position
+        :param adder: direction of searching
+        :return: letters for suffix
+        """
+        result = ''
+
+        position = (pos[0] + adder[0], pos[1] + adder[1])
+
+        next_letter = self.board.get_letter_from_position(position)
+
+        if next_letter is None:
+            if position in self.letter_positions():
+                index = self.letter_positions().index(position)
+                next_letter = self.word[index].letter
+
+        while next_letter is not None:
+            result += next_letter
+            position = (position[0] + adder[0], position[1] + adder[1])
+            next_letter = self.board.get_letter_from_position(position)
+            if position in self.letter_positions():
+                index = self.letter_positions().index(position)
+                next_letter = self.collisions[index].letter
+
+        return result
+
+    def create_letter_under_blank(self, word):
+        """
+        :param word: word which was placed on board
+        :return: one letter which is represented on blank
+        """
+        for i in word:
+            self.allowed_word = self.allowed_word.replace(i, '', 1)
+
+    def word_suffixes_one_letter(self, recv_word):
+        """
+        :param recv_word: created word, one letter indeed
+        :return: take suffixes for one-letter-long word
+        """
+        start_word_pos = self.word[0]
+        stop_word_pos = self.word[-1]
+
+        word = ''
+
+        word_suffix = ''
+        word_prefix = ''
+
+        for i in self.collisions:
+            if i.position[1] == start_word_pos.position[1] == stop_word_pos.position[1]:
+                if i.position[0] < start_word_pos.position[0]:
+                    word_prefix += i.letter
+                    word_prefix += self.further_suffixes(i.position, [-1, 0])
+                elif i.position[0] > stop_word_pos.position[0]:
+                    word_suffix += i.letter
+                    word_suffix += self.further_suffixes(i.position, [1, 0])
+
+                if not self.check_new_word(word_prefix, word, recv_word, word_suffix):
+                    return False
+
+            elif i.position[0] == start_word_pos.position[0] == stop_word_pos.position[0]:
+                if i.position[1] < start_word_pos.position[1]:
+                    word_prefix += i.letter
+                    word_prefix += self.further_suffixes(i.position, [0, -1])
+                elif i.position[1] > stop_word_pos.position[1]:
+                    word_suffix += i.letter
+                    word_suffix += self.further_suffixes(i.position, [0, 1])
+
+                if not self.check_new_word(word_prefix, word, recv_word, word_suffix):
+                    return False
+
+            word_suffix = ''
+            word_prefix = ''
+        print('one word ok')
+        return True
+
+    def check_new_word(self, word_prefix, word, recv_word, word_suffix):
+        """
+        :param word_prefix:
+        :param word:
+        :param recv_word:
+        :param word_suffix:
+        :return: true if accidentally created word is correct
+        """
+        original_word = ''
+
+        if word_prefix != "":
+            word_prefix = word_prefix[::-1]
+
+        word += word_prefix + recv_word + word_suffix
+
+        if '?' in word:
+            original_word = word
+            word = self.create_list_of_words(word)
+
+        print('check word', word)
+
+        if self.words_list.find_if_word_in_list(word)[0]:
+            if original_word != '':
+                self.allowed_word = self.words_list.find_if_word_in_list(word)[1]
+                self.create_letter_under_blank(original_word)
+            self.created_words.append(word)
+            return True
+        else:
+            print('check word false')
+            return False
+
+    def word_suffixes(self, recv_word):
+        """
+        :param recv_word: word which is being created
+        :return: True if suffixes and created word is correct
+        """
+        plane = self.word_plane()
+        start_word_pos = self.word[0]
+        stop_word_pos = self.word[-1]
+
+        temp_collisions = list()
+
+        word = ''
+
+        word_suffix = ''
+        word_prefix = ''
+
+        if plane == 'v':
+            for i in self.collisions:
+                if i.position[1] == start_word_pos.position[1] == stop_word_pos.position[1]:
+                    if i.position[0] < start_word_pos.position[0]:
+                        word_prefix += i.letter
+                        word_prefix += self.further_suffixes(i.position, [-1, 0])
+                    elif i.position[0] > stop_word_pos.position[0]:
+                        word_suffix += i.letter
+                        word_suffix += self.further_suffixes(i.position, [1, 0])
+
+                    temp_collisions.append(i)
+                    if not self.check_new_word(word_prefix, word, recv_word, word_suffix):
+                        return False
+
+                word_suffix = ''
+                word_prefix = ''
+
+        elif plane == 'h':
+            for i in self.collisions:
+                if i.position[0] == start_word_pos.position[0] == stop_word_pos.position[0]:
+                    if i.position[1] < start_word_pos.position[1]:
+                        word_prefix += i.letter
+                        word_prefix += self.further_suffixes(i.position, [0, -1])
+                    elif i.position[1] > stop_word_pos.position[1]:
+                        word_suffix += i.letter
+                        word_suffix += self.further_suffixes(i.position, [0, 1])
+
+                    temp_collisions.append(i)
+                    if not self.check_new_word(word_prefix, word, recv_word, word_suffix):
+                        return False
+
+                word_suffix = ''
+                word_prefix = ''
+
+        for i in temp_collisions:
+            self.collisions.remove(i)
+
+        print('suffixy ok')
+        return True
+
+    def random_created_word(self, recv_word):
+        """
+        :param recv_word: word which is being created
+        :return: true if accidentally created word if correct
+        """
+        plane = self.word_plane()
+
+        word = ''
+
+        word_suffix = ''
+        word_prefix = ''
+
+        if plane == 'v':
+            for colision in self.collisions:
+                for letter in self.word:
+                    if colision.position[0] == letter.position[0]:
+                        found_letter = letter.letter
+                        if colision.position[1] < letter.position[1]:
+                            word_prefix += colision.letter
+                            word_prefix += self.further_suffixes(colision.position, [0, -1])
+                            word_suffix += self.further_suffixes(colision.position, [0, 1])
+                        elif colision.position[1] > letter.position[1]:
+                            word_suffix += colision.letter
+                            word_suffix += self.further_suffixes(colision.position, [0, 1])
+                            word_prefix += self.further_suffixes(colision.position, [0, -1])
+
+                        if word_prefix == word_suffix == found_letter == '':
+                            return True
+
+                        if word_prefix != "":
+                            word_prefix = word_prefix[::-1]
+
+                        word = word_prefix + word_suffix
+
+                        print(word_prefix, '|', word, '|', word_suffix, '|', recv_word, '|', found_letter)
+
+                        if not self.check_new_word('', word, '', ''):
+                            return False
+
+                word_suffix = ''
+                word_prefix = ''
+
+        elif plane == 'h':
+            for colision in self.collisions:
+                for letter in self.word:
+                    if colision.position[1] == letter.position[1]:
+                        found_letter = letter.letter
+                        if colision.position[0] < letter.position[0]:
+                            word_prefix += colision.letter
+                            word_prefix += self.further_suffixes(colision.position, [-1, 0])
+                            word_suffix += self.further_suffixes(colision.position, [1, 0])
+                        elif colision.position[0] > letter.position[0]:
+                            word_suffix += colision.letter
+                            word_suffix += self.further_suffixes(colision.position, [1, 0])
+                            word_prefix += self.further_suffixes(colision.position, [-1, 0])
+
+                        if word_prefix == word_suffix == found_letter == '':
+                            return True
+
+                        if word_prefix != "":
+                            word_prefix = word_prefix[::-1]
+
+                        word = word_prefix + word_suffix
+
+                        if not self.check_new_word('', word, '', ''):
+                            return False
+
+                word_suffix = ''
+                word_prefix = ''
+
+        if len(self.collisions) != 0:
+            if '?' in word:
+                recv_word = self.create_list_of_words(recv_word)
+
+            if not self.words_list.find_if_word_in_list(recv_word)[0]:
+                return False
+
+        print('random ok')
+        return True
+
     def validation(self):
-        """ chceck if placed letters create allowed word and if letters are in one line"""
-        flag = True
+        """
+        :return: True if created word is in one line, is correct and all accidentally created words are also correct
+        """
+        print('validation')
 
         self.word = sorted(self.word, key=lambda word: word.position)
 
         # check first move
         if self.moves_counter == 0:  # first word must go through center
             word = ''
+            original_word = ''
             for letter in self.word:
                 word += letter.letter
 
             if '?' in word:
+                original_word = word
                 word = self.create_list_of_words(word)
 
-            if not self.chcek_if_center():
+            if not self.check_if_center():
                 return False
+
             if not self.words_list.find_if_word_in_list(word)[0]:
                 return False
 
+            if not self.positions_validation():
+                return False
+
             self.allowed_word = self.words_list.find_if_word_in_list(word)[1]
+            self.create_letter_under_blank(original_word)
+
+            return True
 
         else:  # next moves
-            if len(self.word) > 2:  #
+            if len(self.word) >= 2:
                 self.complete_word()
-
-            word = ''
-            for letter in self.word:
-                word += letter.letter
-
-            print('v', word)
-
-            if '?' in word:
-                word = self.create_list_of_words(word)
-
-            if not self.words_list.find_if_word_in_list(word)[0]:  # word not in dictionary but it can be eg. prze-jadę
-                flag = False
-
-            self.allowed_word = self.words_list.find_if_word_in_list(word)[1]
 
             if len(self.word) > 2:
                 if not self.positions_validation():
                     return False
 
-            collisions = self.collision_validation()
-            if len(collisions) == 0:  # only first word can be without collisions
+            self.collisions = self.collision_validation()
+            if len(self.collisions) == 0:
                 return False
 
-            if False not in collisions:  # if some collision does not create a allowed word
+            word = ''
+            for letter in self.word:
+                word += letter.letter
+
+            if len(self.word) == 1:
+                if not self.word_suffixes_one_letter(word):
+                    return False
+
                 return True
-            else:
-                return False
 
-        print('flag', flag)
-        return flag
+            else:
+                if not self.word_suffixes(word):
+                    return False
+
+                if not self.random_created_word(word):
+                    return False
+
+                return True
 
     @staticmethod
     def check_range(position):
-        """ check if position isn't out of board"""
+        """
+        :param position: position to check if isn't  out of range
+        :return: False if is out of range
+        """
         x_coor = position[0]
         y_coor = position[1]
 
         return (0 <= x_coor < 15) and (0 <= y_coor < 15)
 
-    def find_word_to_collision(self, position, from_where):
-        """ check if collision create avalible word"""
-        diff = tuple(self.tuple_diff(position, from_where.position))
-        next_letter = self.board.get_letter_from_position(position)
-        word = ''
-        direction = ''
-
-        if diff[0] == 1:  # rows
-            if from_where.position[0] > position[0]:
-                adder = -1
-                direction = 'top'
-            else:
-                adder = 1
-                direction = 'down'
-
-            while next_letter is not None:
-                word += next_letter
-                position = (position[0] + adder, position[1])
-                next_letter = self.board.get_letter_from_position(position)
-
-        elif diff[1] == 1:  # columns
-            if from_where.position[1] > position[1]:
-                adder = -1
-                direction = 'left'
-            else:
-                adder = 1
-                direction = 'right'
-
-            while next_letter is not None:
-                word += next_letter
-                position = (position[0], position[1] + adder)
-                next_letter = self.board.get_letter_from_position(position)
-
-        if adder == -1:
-            word = word[::-1]
-
-        return word, direction
-
-    def check_if_collision_is_correct(self, start_pos, recv_word, direction):
-        """ check if found collision create a allowed word"""
-        print('direction', direction)
-        switcher = {
-            'left': (0, 1),
-            'right': (0, -1),
-            'top': (1, 0),
-            'down': (-1, 0)
-        }
-
-        adder = switcher.get(direction)
-        new_word = start_pos.letter
-        position = (start_pos.position[0] + adder[0], start_pos.position[1] + adder[1])
-        next_letter = self.board.get_letter_from_position(position)
-
-        while next_letter is not None:
-            new_word += next_letter
-            position = (position[0] + adder[0], position[1] + adder[1])
-            next_letter = self.board.get_letter_from_position(position)
-
-        if direction in ('right', 'down'):
-            new_word = new_word[::-1]
-            recv_word = new_word + recv_word
-        else:
-            recv_word += new_word
-
-        print('b', new_word)
-        print(recv_word)
-
-        if self.words_list.find_if_word_in_used_list(recv_word):
-            return True
-        elif self.words_list.find_if_word_in_list(recv_word)[0]:
-            return True
-        else:
-            return False
-
     def collision_validation(self):
-        """ check if new word create some collision"""
+        """
+        :return: list of collisions which creating word can make
+        """
         positions = [k.position for k in self.word]
         collisions = []
         for i in self.word:
@@ -265,53 +492,71 @@ class Game:
                     if j in positions:
                         continue
                     else:
-                        temp = self.find_word_to_collision(j, i)
-                        collisions.append(self.check_if_collision_is_correct(i, temp[0], temp[1]))
-        print('c', collisions)
+                        temp = MovingLetter(self.board.get_letter_from_position(j), j)
+                        collisions.append(temp)
+
         return collisions
 
     def put_word_on_board(self):
-        """ mark on board letter, remove used letters form set"""
+        """
+        :return: put on board new word
+        """
+        index = 0
         for i in self.word:
             if i.letter == '?':
-                index = self.word.index(i)
-                self.board.set_letter_on_position(i.position, self.allowed_word[index])
+                if len(self.allowed_word) == 2:
+                    self.board.set_letter_on_position(i.position, self.allowed_word[index])
+                    index += 1
+                else:
+                    self.board.set_letter_on_position(i.position, self.allowed_word)
             else:
                 self.board.set_letter_on_position(i.position, i.letter)
 
     def change_player(self):
-        """ chcange current player"""
+        """
+        :return: next player on list becomes current playing one
+        """
         self.current_playing_user = next(self.players)
 
     def remove_letter_from_word(self, letter):
-        """ remove letter from temporary words"""
+        """
+        :param letter: letter to remove from creating word
+        :return: updated word, without given letter
+        """
         for i in self.word:
             if i.letter == letter:
                 self.word.remove(i)
                 return
 
     def calculate_score(self):
-        """calculate score for created word"""
+        """
+        :return: updated player's score with score for used tiles
+        """
+        print(self.created_words)
         score = 0
         word_factor = 1
         for i in self.word:
             if i.position in self.board.premium:
-                premium = self.board.premium.get_premium_from_position(i.position)
+                premium = self.board.get_premium_from_position(i.position)
                 if premium[0] == 'word':
                     word_factor *= premium[1]
+                    score += self.letter_set.get_points(i.letter)
                 elif premium[0] == 'letter':
-                    score += self.letter_set.get_point(i.letter) * premium[1]
+                    score += self.letter_set.get_points(i.letter) * premium[1]
             else:
                 score += self.letter_set.get_points(i.letter)
 
         if self.moves_counter == 0:
             word_factor *= 2
+
         score *= word_factor
 
         return score
 
     def end_move(self):
-        """ tu sum up one single move """
+        """
+        :return: end each single move: put word on board, calculate score, change curret player, reset word
+        """
         if not self.validation():
             return False
         else:
@@ -325,18 +570,21 @@ class Game:
             self.current_playing_user = next(self.players)
             self.word = list()
             self.letter_under_blank = ''
+            self.moves_counter += 1
 
             return True
 
     def pass_button_press(self):
-        """ if pass button was clicked"""
-        self.moves_counter += 1
+        """
+        :return: actions when pass_button was clicked: increment pass_amount
+        """
         self.current_playing_user.increment_pass()
-        self.current_playing_user = next(self.players)
         return not self.check_pass()  # if false game stop
 
     def quit_button_press(self):
-        """if guit button was clicked game return name of winner in case of draw winner is player first on the list"""
+        """
+        :return: actions when quit_button was clicked: return winner's name (in case of draw, winner is first player on a list)
+        """
         scores = [i.score for i in self.players_list]
         names = [j.name for j in self.players_list]
 
@@ -346,19 +594,27 @@ class Game:
         return (winner_name, winner_score)
 
     def check_pass(self):
-        """ chceck if all players passed more than twice"""
+        """
+        :return: True if all players clicked pass_button twice in row
+        """
         pass_amounts = [i.amount_of_pass for i in self.players_list]
         return all(item >= 2 for item in pass_amounts)
 
     def check_type_of_field(self, pos):
-        """ check type of filed from which we want to take tile """
+        """
+        :param pos: position to check if is on premium filed
+        :return: premium if position is on it
+        """
         if pos in self.board.premium:
             return self.board.get_premium_from_position(pos)
         else:
             return None
 
     def create_file_name(self, pos):
-        """ create filename to read to put on board when we want to take off tile"""
+        """
+        :param pos: position on board to clear
+        :return: file name of image to clear filed
+        """
         premium = self.check_type_of_field(pos)
         address = "Images\\empty_"
         if premium is None:
@@ -379,7 +635,10 @@ class Game:
         return address
 
     def get_letter_from_pos(self, pos):
-        """ Method get letter from given position"""
+        """
+        :param pos: position to take latter from word
+        :return: letter on given position in word
+        """
         for i in self.word:
             if i.position == pos:
                 return i.letter

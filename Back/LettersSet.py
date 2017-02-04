@@ -1,18 +1,22 @@
-""" Module responsible for actions with tiles with letters. """
+""" Module responsible for actions connected to tiles with letters. """
 import collections
 import random
+import os
 
 NamedLetter = collections.namedtuple('named_letter', 'amount points')
 
+THIS_DIR, THIS_FILENAME = os.path.split(__file__)
+LETTERS_PATH = os.path.join(THIS_DIR, "letters.txt")
+
 
 class Letters:
-    """ Class responsbile for storage and operations connected to letters tiles. """
+    """ Class responsible for storage and operations connected to letters tiles. """
 
     def __init__(self):
         self.letters = dict()
         self.number_of_letters = 100
         try:
-            with open('Back\\letters.txt', 'r', encoding='utf-8') as reader:
+            with open(LETTERS_PATH, 'r', encoding='utf-8') as reader:
                 data = reader.read()
                 data = data.replace('\n', "@")
                 data = data.split('@')
@@ -48,14 +52,14 @@ class Letters:
 
     def get_points(self, char):
         """
-        :param char: Letter which amount we want to get.
+        :param char: Letter which points we want to get.
         :return: Points of given letter.
         """
         return int(self.letters[char].points)
 
-    def dekrement_amount(self, char):
+    def decrement_amount(self, char):
         """
-        :param char: Letter which amount we want to decrease.
+        :param char: Letter which amount will be decreased.
         """
         if self.get_amount(char) > 0:
             self.letters[char] = NamedLetter(self.get_amount(char) - 1, self.get_points(char))
@@ -63,14 +67,14 @@ class Letters:
 
     def random_letters(self, amount):
         """
-        :param amount: ammount of letter to random (max 7)
-        :return: list of letter which we need to complete player set
+        :param amount: amount of letter to random (max 7)
+        :return: list of letters needed to complete player set
         """
         letters_to_return = list()
         while len(letters_to_return) < amount:
             letter = random.choice(list(self.letters.keys()))
             if self.get_amount(letter) > 0:
-                self.dekrement_amount(letter)
+                self.decrement_amount(letter)
                 letters_to_return.append(letter)
             if self.number_of_letters == 0:
                 break
@@ -79,7 +83,7 @@ class Letters:
 
     def increment_amount(self, char):
         """
-        :param char: Letter which amount we want to increase.
+        :param char: Letter which amount will be increased.
         """
         if self.number_of_letters < 101:
             self.letters[char] = NamedLetter(self.get_amount(char) + 1, self.get_points(char))
@@ -87,19 +91,11 @@ class Letters:
 
     def change_letters(self, letters):
         """
-        :param letters: list of letter we want to exchange
-        :return: list of letters random from all avalible letters
+        :param letters: list of letters to exchange
+        :return: list of letters random from all available letters
         """
         letter_to_return = self.random_letters(len(letters))
         for i in letters:
             self.increment_amount(i)
 
         return letter_to_return
-
-    def calculate_points(self, word):
-        """Caltulate points for given word"""
-        score = 0
-        for letter in word:
-            score += self.get_points(letter)
-
-        return score
