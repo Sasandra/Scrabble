@@ -2,11 +2,11 @@
 import os
 
 THIS_DIR, THIS_FILENAME = os.path.split(__file__)
-WORDS_PATH = os.path.join(THIS_DIR, "words.txt")
+WORDS_PATH = os.path.join(THIS_DIR, "WORDS.txt")
 
 
 class Words:
-    """ Class which represent list of all allowed words in the game """
+    """ Class which represent list of all allowed WORDS in the GAME """
 
     def __init__(self):
         self.words = list()
@@ -43,7 +43,7 @@ class Words:
 
     def find_if_word_in_list(self, word):
         """
-        :param word: word which is being looked in game's dictionary
+        :param word: word which is being looked in GAME's dictionary
         :return: True when given word is allowed or False when it isn't
         """
         if isinstance(word, str):

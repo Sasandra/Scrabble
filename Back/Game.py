@@ -1,14 +1,17 @@
 """ Module for general game functions"""
 from collections import namedtuple
 from itertools import cycle
+from Back import AIControler
+from Back.Tree import Tree
+from Back.Tree import Node
 
 MovingLetter = namedtuple('MovingLetter', 'letter, position')
 
 
 class Game:
-    """Class responsible for game strategy"""
+    """Class responsible for GAME strategy"""
 
-    def __init__(self, words_list=None, players=None, board=None, letters=None):
+    def __init__(self, words_list, players, board, letters, ai=None):
         self.players = cycle(players)
         self.players_list = players
         self.moves_counter = 0
@@ -21,6 +24,10 @@ class Game:
         self.letter_under_blank = ''
         self.allowed_word = ''
         self.created_words = list()
+        self.created_word = ''
+
+        if ai:
+            self.controler_ai = AIControler.AIController(self.board, self.players_list[1], self.letter_set)
 
     @staticmethod
     def tuple_diff(tuple1, tuple2):
@@ -67,7 +74,7 @@ class Game:
 
     def positions_validation(self):
         """
-        :return: True if letters are on one line vertically or horizontally
+        :return: True if LETTERS are on one line vertically or horizontally
         """
         positions_diff = list()
         for i in range(len(self.word) - 1):
@@ -105,7 +112,7 @@ class Game:
     def create_list_of_words(self, word):
         """
         :param word: word with blank
-        :return: list of all possible words after replacing blank
+        :return: list of all possible WORDS after replacing blank
         """
         result = list()
         choose = {
@@ -148,7 +155,7 @@ class Game:
 
     def letter_positions(self):
         """
-        :return: word's letters' positions
+        :return: word's LETTERS' positions
         """
         pos = list()
         for i in self.word:
@@ -160,7 +167,7 @@ class Game:
         """
         :param pos: start position
         :param adder: direction of searching
-        :return: letters for suffix
+        :return: LETTERS for suffix
         """
         result = ''
 
@@ -185,7 +192,7 @@ class Game:
 
     def create_letter_under_blank(self, word):
         """
-        :param word: word which was placed on board
+        :param word: word which was placed on BOARD
         :return: one letter which is represented on blank
         """
         for i in word:
@@ -229,7 +236,6 @@ class Game:
 
             word_suffix = ''
             word_prefix = ''
-        print('one word ok')
         return True
 
     def check_new_word(self, word_prefix, word, recv_word, word_suffix):
@@ -251,16 +257,15 @@ class Game:
             original_word = word
             word = self.create_list_of_words(word)
 
-        print('check word', word)
-
         if self.words_list.find_if_word_in_list(word)[0]:
             if original_word != '':
                 self.allowed_word = self.words_list.find_if_word_in_list(word)[1]
                 self.create_letter_under_blank(original_word)
+            word = self.words_list.find_if_word_in_list(word)[1]
             self.created_words.append(word)
+            self.created_word = word
             return True
         else:
-            print('check word false')
             return False
 
     def word_suffixes(self, recv_word):
@@ -316,7 +321,6 @@ class Game:
         for i in temp_collisions:
             self.collisions.remove(i)
 
-        print('suffixy ok')
         return True
 
     def random_created_word(self, recv_word):
@@ -353,8 +357,6 @@ class Game:
 
                         word = word_prefix + word_suffix
 
-                        print(word_prefix, '|', word, '|', word_suffix, '|', recv_word, '|', found_letter)
-
                         if not self.check_new_word('', word, '', ''):
                             return False
 
@@ -390,20 +392,24 @@ class Game:
                 word_prefix = ''
 
         if len(self.collisions) != 0:
-            if '?' in word:
+            original_word = recv_word
+            if '?' in recv_word:
                 recv_word = self.create_list_of_words(recv_word)
 
-            if not self.words_list.find_if_word_in_list(recv_word)[0]:
-                return False
+                if not self.words_list.find_if_word_in_list(recv_word)[0]:
+                    return False
+                else:
+                    recv_word = self.words_list.find_if_word_in_list(recv_word)[1]
+                    self.allowed_word = self.words_list.find_if_word_in_list(recv_word)[1]
+                    self.create_letter_under_blank(original_word)
 
-        print('random ok')
         return True
 
     def validation(self):
         """
-        :return: True if created word is in one line, is correct and all accidentally created words are also correct
+        :return: True if created word is in one line, is correct and all accidentally created WORDS are also correct
         """
-        print('validation')
+        self.created_word = ''
 
         self.word = sorted(self.word, key=lambda word: word.position)
 
@@ -436,7 +442,7 @@ class Game:
             if len(self.word) >= 2:
                 self.complete_word()
 
-            if len(self.word) > 2:
+            if len(self.word) >= 2:
                 if not self.positions_validation():
                     return False
 
@@ -457,6 +463,9 @@ class Game:
             else:
                 if not self.word_suffixes(word):
                     return False
+
+                if self.created_word != '':
+                    word = self.created_word
 
                 if not self.random_created_word(word):
                     return False
@@ -499,7 +508,7 @@ class Game:
 
     def put_word_on_board(self):
         """
-        :return: put on board new word
+        :return: put on BOARD new word
         """
         index = 0
         for i in self.word:
@@ -514,7 +523,7 @@ class Game:
 
     def change_player(self):
         """
-        :return: next player on list becomes current playing one
+        :return: next PLAYER on list becomes current playing one
         """
         self.current_playing_user = next(self.players)
 
@@ -530,9 +539,10 @@ class Game:
 
     def calculate_score(self):
         """
-        :return: updated player's score with score for used tiles
+        :return: updated PLAYER's score with score for used tiles
         """
         print(self.created_words)
+        print(self.word)
         score = 0
         word_factor = 1
         for i in self.word:
@@ -555,7 +565,7 @@ class Game:
 
     def end_move(self):
         """
-        :return: end each single move: put word on board, calculate score, change curret player, reset word
+        :return: end each single move: put word on BOARD, calculate score, change curret PLAYER, reset word
         """
         if not self.validation():
             return False
@@ -579,11 +589,11 @@ class Game:
         :return: actions when pass_button was clicked: increment pass_amount
         """
         self.current_playing_user.increment_pass()
-        return not self.check_pass()  # if false game stop
+        return not self.check_pass()  # if false GAME stop
 
     def quit_button_press(self):
         """
-        :return: actions when quit_button was clicked: return winner's name (in case of draw, winner is first player on a list)
+        :return: actions when quit_button was clicked: return winner's NAME (in case of draw, winner is first PLAYER on a list)
         """
         scores = [i.score for i in self.players_list]
         names = [j.name for j in self.players_list]
@@ -595,7 +605,7 @@ class Game:
 
     def check_pass(self):
         """
-        :return: True if all players clicked pass_button twice in row
+        :return: True if all PLAYERS clicked pass_button twice in row
         """
         pass_amounts = [i.amount_of_pass for i in self.players_list]
         return all(item >= 2 for item in pass_amounts)
@@ -612,8 +622,8 @@ class Game:
 
     def create_file_name(self, pos):
         """
-        :param pos: position on board to clear
-        :return: file name of image to clear filed
+        :param pos: position on BOARD to clear
+        :return: file NAME of image to clear filed
         """
         premium = self.check_type_of_field(pos)
         address = "Images\\empty_"
@@ -643,51 +653,31 @@ class Game:
             if i.position == pos:
                 return i.letter
 
-#
-# l = LettersSet.Letters()
-# player = (PlayerData.Player('Ola', l), PlayerData.Player('Adam', l))
-# bord = BoardData.Board()
-# bord.set_letter_on_position((1, 5), 'p')
-# bord.set_letter_on_position((2, 5), 'r')
-# bord.set_letter_on_position((3, 5), 'ó')
-# bord.set_letter_on_position((4, 5), 'b')
-# bord.set_letter_on_position((5, 5), 'u')
-# bord.set_letter_on_position((6, 5), 'j')
-# bord.set_letter_on_position((7, 5), 'e')
-# # bord.set_letter_on_position((8, 5), 'e')
-# # bord.set_letter_on_position((8, 8), 'm')
-# # bord.set_letter_on_position((8, 9), 'y')
-#
-# lista = WordsList.Words()
-# lista.add_used_word('prze')
-# # lista.add_used_word('bal')
-# word = list()
-# #a = MovingLetter('o', (1, 6))
-# #b = MovingLetter('r', (1, 7))
-# c = MovingLetter('y', (4, 6))
-# d = MovingLetter('ę', (4, 7))
-# e = MovingLetter('ż', (4, 8))
-# #f = MovingLetter('a', (3, 8))
-# #g = MovingLetter('y', (3, 10))
-# #word.append(a)
-# #word.append(b)
-# word.append(c)
-# word.append(d)
-# word.append(e)
-# #word.append(f)
-# #word.append(g)
-# # print(sorted(word, key=lambda word: word.position))
-# for i in word:
-#     bord.set_letter_on_position(i.position, i.letter)
-#
-# g = Game(words_list=lista, board=bord, players=player)
-# g.word = word
-# print('g', g.validation())
-#
-# for i in range(15):
-#     for j in range(15):
-#         if bord.board[i, j] == None:
-#             print('_', end=' ')
-#         else:
-#             print(bord.board[i, j], end=' ')
-#     print()
+    def make_ai_move(self):
+        """
+        Call functions from AI Controller Module
+        """
+        self.word = self.controler_ai.make_move()
+        clicked_positions = list()
+        if self.word:
+            self.put_word_on_board()
+            self.current_playing_user.end_move_and_reset(self.calculate_score())
+
+            self.letter_under_blank = ''
+            self.moves_counter += 1
+
+            for i in self.word:
+                clicked_positions.append(i.position)
+
+        return clicked_positions
+
+    def stop_condition(self):
+        """
+        :return: False if there no LETTERS left and one holder is empty
+        """
+        if self.letter_set.number_of_letters == 0:
+            for i in self.players_list:
+                if len(i.holder) == 0:
+                    return False
+
+        return True

@@ -5,7 +5,7 @@ import pygame
 
 
 class Holder:
-    """ Class to represent player's holder for letters"""
+    """ Class to represent PLAYER's holder for LETTERS"""
 
     def __init__(self, player, screen):
         self.player = player
@@ -17,7 +17,7 @@ class Holder:
 
     def read_holder(self):
         """
-        :return: Generate holder's coordinates on board
+        :return: Generate holder's coordinates on BOARD
         """
         self.holder = collections.OrderedDict()
         letters = self.player.holder
@@ -30,7 +30,7 @@ class Holder:
     def change_name(letter):
         """
         :param letter: letter to change in correct form for filename
-        :return: letter if letter isn't polish letter or suitable name for this letter if is polish
+        :return: letter if letter isn't polish letter or suitable NAME for this letter if is polish
                 e.g ą->a1  b->b
         """
         switcher = {
@@ -88,7 +88,7 @@ class Holder:
 
     def exchange_holder(self):
         """
-        :return: holder with exchanged chosen letters
+        :return: holder with exchanged chosen LETTERS
         """
         if self.player.if_change_letters:
             return
@@ -162,8 +162,8 @@ class Holder:
 
     def swap_letters(self, positions):
         """
-        :param positions: positions' pair of letters to swap on holder
-        :return: updated holder with shifted letters
+        :param positions: positions' pair of LETTERS to swap on holder
+        :return: updated holder with shifted LETTERS
         """
         letter_1 = positions[0]
         letter_2 = positions[1]

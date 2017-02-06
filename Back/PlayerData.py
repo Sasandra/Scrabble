@@ -3,7 +3,7 @@ import copy
 
 
 class Player:
-    """Class to represent player data"""
+    """Class to represent PLAYER data"""
 
     def __init__(self, name, letters_set_object):
         self.name = name
@@ -15,8 +15,8 @@ class Player:
 
     def remove_double_clicked(self, letters):
         """
-        :param letters: chosen letters to exchange
-        :return: list of letters without double clicked
+        :param letters: chosen LETTERS to exchange
+        :return: list of LETTERS without double clicked
         """
         holder_copy = copy.deepcopy(self.holder)
         letters_to_return = list()
@@ -31,8 +31,8 @@ class Player:
 
     def exchange_letter(self, letters):
         """
-        :param letters: list of letters to exchange
-        :return: holder with updated list of letters
+        :param letters: list of LETTERS to exchange
+        :return: holder with updated list of LETTERS
         """
         if not self.if_change_letters:
             letters = self.remove_double_clicked(letters)
@@ -47,7 +47,7 @@ class Player:
 
     def complete_holder(self):
         """
-        :return: fill holder with new random letters
+        :return: fill holder with new random LETTERS
         """
         amount_of_lack_letters = 7 - len(self.holder)
         letters = self.letters_object.random_letters(amount_of_lack_letters)
@@ -56,20 +56,20 @@ class Player:
 
     def get_name(self):
         """
-        :return: player's name
+        :return: PLAYER's NAME
         """
         return self.name
 
     def update_score(self, new_scores):
         """
         :param new_scores:
-        :return: add new_scores to player's score
+        :return: add new_scores to PLAYER's score
         """
         self.score += new_scores
 
     def increment_pass(self):
         """
-        :return: increment amount_of pass every time when player doesn't create a word
+        :return: increment amount_of pass every time when PLAYER doesn't create a word
         """
         self.amount_of_pass += 1
 

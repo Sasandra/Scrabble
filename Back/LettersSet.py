@@ -6,11 +6,11 @@ import os
 NamedLetter = collections.namedtuple('named_letter', 'amount points')
 
 THIS_DIR, THIS_FILENAME = os.path.split(__file__)
-LETTERS_PATH = os.path.join(THIS_DIR, "letters.txt")
+LETTERS_PATH = os.path.join(THIS_DIR, "LETTERS.txt")
 
 
 class Letters:
-    """ Class responsible for storage and operations connected to letters tiles. """
+    """ Class responsible for storage and operations connected to LETTERS tiles. """
 
     def __init__(self):
         self.letters = dict()
@@ -68,7 +68,7 @@ class Letters:
     def random_letters(self, amount):
         """
         :param amount: amount of letter to random (max 7)
-        :return: list of letters needed to complete player set
+        :return: list of LETTERS needed to complete PLAYER set
         """
         letters_to_return = list()
         while len(letters_to_return) < amount:
@@ -91,8 +91,8 @@ class Letters:
 
     def change_letters(self, letters):
         """
-        :param letters: list of letters to exchange
-        :return: list of letters random from all available letters
+        :param letters: list of LETTERS to exchange
+        :return: list of LETTERS random from all available LETTERS
         """
         letter_to_return = self.random_letters(len(letters))
         for i in letters:

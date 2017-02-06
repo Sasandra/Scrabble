@@ -12,7 +12,7 @@ BOARD_COORDINATES = os.path.join(THIS_DIR, "board_grid")
 
 class Board:
     """
-    Class which represent board
+    Class which represent BOARD
     """
 
     def __init__(self):
