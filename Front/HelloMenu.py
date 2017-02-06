@@ -4,7 +4,7 @@ from Front import TextBox
 
 
 class HelloMenu:
-    """Class responsible for getting player name and create a new one"""
+    """Class responsible for getting PLAYER NAME and create a new one"""
 
     def __init__(self):
         self.screen = pygame.display.set_mode((800, 600))
@@ -42,7 +42,7 @@ class HelloMenu:
         :return: text on screen
         """
         pygame.font.init()
-        myfont = pygame.font.SysFont("Cinnamon Cake", 40)
+        myfont = pygame.font.SysFont("Gabriola", 40)
 
         textsurface = myfont.render(text, False, (255, 255, 255))
         self.screen.blit(textsurface, (235, 300))
@@ -77,8 +77,10 @@ class HelloMenu:
 
                             pygame.display.flip()
 
-                            if self.input_entered != '':
+                            if self.input_entered != '' and self.input_entered != 'Computer':
                                 self.game_state = False
                                 return self.input_entered
+                            else:
+                                self.box.str_list = []
 
             self.update()

@@ -4,7 +4,7 @@ import pygame
 
 
 class MainMenu:
-    """Class responsible for main menu of game"""
+    """Class responsible for main menu of GAME"""
 
     def __init__(self):
 
@@ -37,7 +37,7 @@ class MainMenu:
         tittle = pygame.transform.scale(tittle, (634, 148))
         self.screen.blit(tittle, (90, 30))
 
-        computer = pygame.image.load('Images\\buttons\\computer.png')
+        computer = pygame.image.load('Images\\buttons\\COMPUTER.png')
         computer = pygame.transform.scale(computer, (423, 99))
         self.screen.blit(computer, (189, 200))
 
@@ -58,7 +58,7 @@ class MainMenu:
     @staticmethod
     def button_on_click(name):
         """
-        :param name: button's name to read clicked version
+        :param name: button's NAME to read clicked version
         :return: read image of clicked button and show it
         """
         name = 'Images\\buttons\\' + name + '_click.png'
@@ -69,7 +69,7 @@ class MainMenu:
     @staticmethod
     def button_out_click(name):
         """
-        :param name: button's name to read unclicked version
+        :param name: button's NAME to read unclicked version
         :return: read image of unclicked button
         """
         name = 'Images\\buttons\\' + name + '.png'
@@ -123,5 +123,5 @@ class MainMenu:
                             pygame.display.flip()
 
                         elif self.computer_button.collidepoint(pygame.mouse.get_pos()):
-                            self.screen.blit(self.button_out_click('computer'), (189, 200))
+                            self.screen.blit(self.button_out_click('COMPUTER'), (189, 200))
                             pygame.display.flip()

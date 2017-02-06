@@ -153,7 +153,7 @@ class GameTest(unittest.TestCase):
     def test_further_suffixes_pre(self):
         self.game.board.set_letter_on_position((0, 1), 'r')
         self.game.board.set_letter_on_position((0, 2), 'y')
-        self.game.board.set_letter_on_position((0,3), 'm')
+        self.game.board.set_letter_on_position((0, 3), 'm')
         self.game.word = [Game.MovingLetter('y', (0, 4))]
         result = self.game.further_suffixes((0, 4), (0, -1))
         self.assertEqual(result, 'myr')
@@ -172,11 +172,11 @@ class GameTest(unittest.TestCase):
         self.assertEqual(self.game.allowed_word, 'ą')
 
     def test_check_range_ok(self):
-        result = self.game.check_range((6,7))
+        result = self.game.check_range((6, 7))
         self.assertEqual(result, True)
 
     def test_check_range_fail(self):
-        result = self.game.check_range((16,7))
+        result = self.game.check_range((16, 7))
         self.assertEqual(result, False)
 
     def test_collision_validation(self):
@@ -248,7 +248,8 @@ class GameTest(unittest.TestCase):
         self.assertEqual(score, 5)
 
     def test_calculate_score_both(self):
-        self.game.word = [Game.MovingLetter('d', (14, 0)), Game.MovingLetter('o', (14, 1)), Game.MovingLetter('m', (14, 2)), Game.MovingLetter('u', (14, 3))]
+        self.game.word = [Game.MovingLetter('d', (14, 0)), Game.MovingLetter('o', (14, 1)),
+                          Game.MovingLetter('m', (14, 2)), Game.MovingLetter('u', (14, 3))]
         self.game.moves_counter = 2
         score = self.game.calculate_score()
         self.assertEqual(score, 33)
@@ -486,7 +487,8 @@ class GameTest(unittest.TestCase):
         self.assertEqual(result, False)
 
     def test_word_suffixes_post_ok(self):
-        self.game.word = [Game.MovingLetter('c', (7, 10)), Game.MovingLetter('u', (7, 11)), Game.MovingLetter('d', (7, 12))]
+        self.game.word = [Game.MovingLetter('c', (7, 10)), Game.MovingLetter('u', (7, 11)),
+                          Game.MovingLetter('d', (7, 12))]
         self.game.board.set_letter_on_position((7, 13), 'n')
         self.game.board.set_letter_on_position((7, 14), 'a')
         self.game.collisions = self.game.collision_validation()
@@ -630,7 +632,16 @@ class GameTest(unittest.TestCase):
         result = self.game.random_created_word('mat')
         self.assertEqual(result, True)
 
+    def test_stop_condition_ok(self):
+        letters = self.game.letter_set.random_letters(100)
+        self.game.players_list[0].holder = []
+        result = self.game.stop_condition()
+        self.assertEqual(result, False)
 
+    def test_stop_condition_fail(self):
+        letters = self.game.letter_set.random_letters(100)
+        result = self.game.stop_condition()
+        self.assertEqual(result, True)
 
 
 suite = unittest.TestLoader().loadTestsFromTestCase(GameTest)

@@ -4,7 +4,7 @@ from Front import TextBox
 
 
 class AddFriends:
-    """Class responsible for getting player name and create a new one"""
+    """Class responsible for getting PLAYER NAME and create a new one"""
 
     def __init__(self):
         self.screen = pygame.display.set_mode((800, 600))
@@ -22,12 +22,13 @@ class AddFriends:
         self.show_text('Podaj nick gracza', (90, 150), 30)
         self.load_ok_button()
         self.load_add_button()
+        self.load_back_button()
 
         pygame.display.flip()
 
     def add_labels(self):
         """
-        show on screen label with new player's name after button_add clicking
+        show on screen label with new PLAYER's NAME after button_add clicking
         """
         if len(self.entered_names) == 1:
             self.show_text('Gracz 1:', (90, 260), 30)
@@ -59,6 +60,15 @@ class AddFriends:
         add_button = pygame.transform.scale(add_button, (100, 60))
         self.screen.blit(add_button, (350, 200))
 
+    def load_back_button(self):
+        """
+        read image for bac_button and create rectangle for it
+        """
+        self.back_button = pygame.Rect(500, 480, 100, 60)
+        back_button = pygame.image.load('Images\\buttons\\back.png')
+        back_button = pygame.transform.scale(back_button, (100, 60))
+        self.screen.blit(back_button, (500, 480))
+
     def clear_textbox(self):
         """
         Clear the textbox, it is needed to show properly entered data
@@ -75,7 +85,7 @@ class AddFriends:
         :return: show given text, in given place and with given size
         """
         pygame.font.init()
-        myfont = pygame.font.SysFont("Cinnamon Cake", size)
+        myfont = pygame.font.SysFont("Gabriola", size)
 
         textsurface = myfont.render(text, False, (255, 255, 255))
         self.screen.blit(textsurface, coordinates)
@@ -122,12 +132,28 @@ class AddFriends:
                                 self.input_entered = ''
                                 self.box.str_list = []
 
+                        elif self.back_button.collidepoint(pygame.mouse.get_pos()):
+                            self.window_state = False
+                            return False
+
                 elif event.type == pygame.MOUSEBUTTONUP:
                     if event.button == 1:
                         if self.add_button.collidepoint(pygame.mouse.get_pos()):
                             add_button_click = pygame.image.load('Images\\buttons\\add_click.png')
                             add_button_click = pygame.transform.scale(add_button_click, (100, 60))
                             self.screen.blit(add_button_click, (350, 200))
+                            pygame.display.flip()
+
+                        elif self.back_button.collidepoint(pygame.mouse.get_pos()):
+                            back_button_click = pygame.image.load('Images\\buttons\\back_click.png')
+                            back_button_click = pygame.transform.scale(back_button_click, (100, 60))
+                            self.screen.blit(back_button_click, (500, 480))
+                            pygame.display.flip()
+
+                        elif self.ok_button.collidepoint(pygame.mouse.get_pos()):
+                            ok_button_click = pygame.image.load('Images\\buttons\\ok.png')
+                            ok_button_click = pygame.transform.scale(ok_button_click, (105, 78))
+                            self.screen.blit(ok_button_click, (350, 460))
                             pygame.display.flip()
 
                 self.load_add_button()
