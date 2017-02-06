@@ -1,1 +1,0 @@
-""" Module for server in network mode"""
