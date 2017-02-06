@@ -511,6 +511,8 @@ class Game:
         :return: put on BOARD new word
         """
         index = 0
+        print(self.word)
+        print(self.created_words)
         for i in self.word:
             if i.letter == '?':
                 if len(self.allowed_word) == 2:
