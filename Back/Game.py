@@ -511,8 +511,6 @@ class Game:
         :return: put on BOARD new word
         """
         index = 0
-        print(self.word)
-        print(self.created_words)
         for i in self.word:
             if i.letter == '?':
                 if len(self.allowed_word) == 2:
@@ -543,8 +541,6 @@ class Game:
         """
         :return: updated PLAYER's score with score for used tiles
         """
-        print(self.created_words)
-        print(self.word)
         score = 0
         word_factor = 1
         for i in self.word:
