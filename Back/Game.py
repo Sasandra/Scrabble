@@ -190,6 +190,37 @@ class Game:
 
         return result
 
+    def further_suffixes_for_suffixes(self, pos, adder):
+        """
+        :param pos: start position
+        :param adder: direction of searching
+        :return: LETTERS for suffix
+        """
+        result = ''
+
+        position = (pos[0] + adder[0], pos[1] + adder[1])
+
+        next_letter = self.board.get_letter_from_position(position)
+
+        if next_letter is None:
+            if position in self.letter_positions():
+                index = self.letter_positions().index(position)
+                next_letter = self.word[index].letter
+
+        while next_letter is not None:
+            while position in self.letter_positions():
+                position = (position[0] + adder[0], position[1] + adder[1])
+                next_letter = self.board.get_letter_from_position(position)
+
+            if next_letter is None:
+                break
+
+            result += next_letter
+            position = (position[0] + adder[0], position[1] + adder[1])
+            next_letter = self.board.get_letter_from_position(position)
+
+        return result
+
     def create_letter_under_blank(self, word):
         """
         :param word: word which was placed on BOARD
@@ -216,9 +247,13 @@ class Game:
                 if i.position[0] < start_word_pos.position[0]:
                     word_prefix += i.letter
                     word_prefix += self.further_suffixes(i.position, [-1, 0])
+                    temp_pos = (i.position[0] + 1, i.position[1])
+                    word_suffix += self.further_suffixes(temp_pos, [1, 0])
                 elif i.position[0] > stop_word_pos.position[0]:
                     word_suffix += i.letter
                     word_suffix += self.further_suffixes(i.position, [1, 0])
+                    temp_pos = (i.position[0] - 1, i.position[1])
+                    word_prefix += self.further_suffixes(temp_pos, [-1, 0])
 
                 if not self.check_new_word(word_prefix, word, recv_word, word_suffix):
                     return False
@@ -227,15 +262,20 @@ class Game:
                 if i.position[1] < start_word_pos.position[1]:
                     word_prefix += i.letter
                     word_prefix += self.further_suffixes(i.position, [0, -1])
+                    temp_pos = (i.position[0], i.position[1] + 1)
+                    word_suffix += self.further_suffixes(temp_pos, [0, 1])
                 elif i.position[1] > stop_word_pos.position[1]:
                     word_suffix += i.letter
                     word_suffix += self.further_suffixes(i.position, [0, 1])
+                    temp_pos = (i.position[0], i.position[1] - 1)
+                    word_prefix += self.further_suffixes(temp_pos, [0, -1])
 
                 if not self.check_new_word(word_prefix, word, recv_word, word_suffix):
                     return False
 
             word_suffix = ''
             word_prefix = ''
+
         return True
 
     def check_new_word(self, word_prefix, word, recv_word, word_suffix):
@@ -289,10 +329,12 @@ class Game:
                 if i.position[1] == start_word_pos.position[1] == stop_word_pos.position[1]:
                     if i.position[0] < start_word_pos.position[0]:
                         word_prefix += i.letter
-                        word_prefix += self.further_suffixes(i.position, [-1, 0])
+                        word_prefix += self.further_suffixes_for_suffixes(i.position, [-1, 0])
+                        word_suffix += self.further_suffixes_for_suffixes(i.position, [1, 0])
                     elif i.position[0] > stop_word_pos.position[0]:
                         word_suffix += i.letter
-                        word_suffix += self.further_suffixes(i.position, [1, 0])
+                        word_suffix += self.further_suffixes_for_suffixes(i.position, [1, 0])
+                        word_prefix += self.further_suffixes_for_suffixes(i.position, [-1, 0])
 
                     temp_collisions.append(i)
                     if not self.check_new_word(word_prefix, word, recv_word, word_suffix):
@@ -306,10 +348,12 @@ class Game:
                 if i.position[0] == start_word_pos.position[0] == stop_word_pos.position[0]:
                     if i.position[1] < start_word_pos.position[1]:
                         word_prefix += i.letter
-                        word_prefix += self.further_suffixes(i.position, [0, -1])
+                        word_prefix += self.further_suffixes_for_suffixes(i.position, [0, -1])
+                        word_suffix += self.further_suffixes_for_suffixes(i.position, [0, 1])
                     elif i.position[1] > stop_word_pos.position[1]:
                         word_suffix += i.letter
-                        word_suffix += self.further_suffixes(i.position, [0, 1])
+                        word_suffix += self.further_suffixes_for_suffixes(i.position, [0, 1])
+                        word_prefix += self.further_suffixes_for_suffixes(i.position, [0, -1])
 
                     temp_collisions.append(i)
                     if not self.check_new_word(word_prefix, word, recv_word, word_suffix):
@@ -393,6 +437,7 @@ class Game:
 
         if len(self.collisions) != 0:
             original_word = recv_word
+
             if '?' in recv_word:
                 recv_word = self.create_list_of_words(recv_word)
 
@@ -402,6 +447,9 @@ class Game:
                     recv_word = self.words_list.find_if_word_in_list(recv_word)[1]
                     self.allowed_word = self.words_list.find_if_word_in_list(recv_word)[1]
                     self.create_letter_under_blank(original_word)
+            else:
+                if not self.words_list.find_if_word_in_list(recv_word)[0]:
+                    return False
 
         return True
 
